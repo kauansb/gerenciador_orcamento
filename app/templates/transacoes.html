@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Transações - Gerenciador de Orçamento{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="color: #667eea; margin: 0;">💳 Transações</h2>
+    <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary">➕ Nova Transação</a>
+</div>
+
+{% if transacoes %}
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transacao in transacoes %}
+                    <tr>
+                        <td><strong>{{ transacao.descricao }}</strong></td>
+                        <td>R$ {{ "%.2f"|format(transacao.valor) }}</td>
+                        <td>
+                            <span class="badge badge-info">{{ transacao.categoria_nome }}</span>
+                        </td>
+                        <td>
+                            <small>{{ transacao.criado_em }}</small>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ url_for('transacao.editar_transacao', id=transacao.id) }}" class="btn btn-warning btn-small">✏️ Editar</a>
+                                <form method="POST" action="{{ url_for('transacao.deletar_transacao', id=transacao.id) }}" style="display: inline; margin: 0;">
+                                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza que deseja deletar esta transação?')">🗑️ Deletar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>Nenhuma transação cadastrada</h3>
+        <p>Comece adicionando uma transação para rastrear suas despesas.</p>
+        <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary">Criar Primeira Transação</a>
+    </div>
+{% endif %}
+{% endblock %}

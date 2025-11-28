@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Categoria - Gerenciador de Orçamento{% endblock %}
+
+{% block content %}
+<h2 style="color: #667eea; margin-bottom: 20px;">➕ Nova Categoria</h2>
+
+<div style="max-width: 600px;">
+    <form method="POST">
+        <div class="form-group">
+            <label for="nome">Nome da Categoria *</label>
+            <input type="text" id="nome" name="nome" required placeholder="Ex: Lazer, Moradia, Alimentação" autofocus>
+            <small style="color: #666;">Exemplos: Lazer, Moradia, Alimentação, Transporte, Saúde</small>
+        </div>
+
+        <div class="form-group">
+            <label for="limite">Limite Orçamentário (R$) *</label>
+            <input type="number" id="limite" name="limite" required placeholder="Ex: 1000.00" step="0.01" min="0">
+            <small style="color: #666;">Digite o limite máximo que você deseja gastar nesta categoria</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">✅ Criar Categoria</button>
+            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary">❌ Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header">
+        <h3>💡 Dicas</h3>
+    </div>
+    <div class="card-body">
+        <ul style="margin-left: 20px; line-height: 1.8;">
+            <li>Crie categorias que façam sentido para sua vida (ex: Lazer, Moradia, Alimentação)</li>
+            <li>Defina um limite realista para cada categoria baseado em sua renda</li>
+            <li>Você pode editar o limite e o nome da categoria a qualquer momento</li>
+            <li>Quando criar uma transação, ela será validada contra o limite da categoria</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

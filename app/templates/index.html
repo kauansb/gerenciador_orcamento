@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gerenciador de Orçamento{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px; color: #667eea;">📊 Resumo do Orçamento</h2>
+
+<!-- Estatísticas Gerais -->
+<div class="stats">
+    <div class="stat-card">
+        <h3>Limite Total</h3>
+        <div class="value">R$ {{ "%.2f"|format(total_limite) }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Total Gasto</h3>
+        <div class="value">R$ {{ "%.2f"|format(total_gasto) }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Saldo Restante</h3>
+        <div class="value">R$ {{ "%.2f"|format(total_saldo) }}</div>
+    </div>
+</div>
+
+<!-- Categorias -->
+{% if categorias %}
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Limite</th>
+                    <th>Gasto</th>
+                    <th>Saldo</th>
+                    <th>Percentual</th>
+                    <th>Transações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td>
+                            <strong>{{ categoria.nome }}</strong>
+                        </td>
+                        <td>R$ {{ "%.2f"|format(categoria.limite) }}</td>
+                        <td>R$ {{ "%.2f"|format(categoria.gasto) }}</td>
+                        <td>
+                            {% if categoria.saldo >= 0 %}
+                                <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                {% if categoria.percentual <= 75 %}
+                                    <div class="progress-fill" style="width: {{ categoria.percentual }}%"></div>
+                                {% elif categoria.percentual <= 100 %}
+                                    <div class="progress-fill warning" style="width: {{ categoria.percentual }}%"></div>
+                                {% else %}
+                                    <div class="progress-fill danger" style="width: 100%"></div>
+                                {% endif %}
+                            </div>
+                            <small>{{ "%.1f"|format(categoria.percentual) }}%</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-info">{{ categoria.transacoes_count }}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>Nenhuma categoria cadastrada</h3>
+        <p>Comece criando uma nova categoria para gerenciar seu orçamento.</p>
+        <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary">Criar Primeira Categoria</a>
+    </div>
+{% endif %}
+{% endblock %}
