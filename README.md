@@ -48,10 +48,10 @@ pip install -r requirements.txt
 ## Executando a Aplicação
 ```powershell
 # Com ambiente ativado
-python run.py
+flask run
 ```
 
-Use `FLASK_ENV=production python run.py` em produção e assegure que `SECRET_KEY` esteja definido com um valor seguro.
+Use `FLASK_ENV=production flask run` em produção e assegure que `SECRET_KEY` esteja definido com um valor seguro.
 
 ### Observações sobre banco de dados
 - O projeto usa SQLite por padrão (arquivo em `instance/orcamento.db`). Em provedores que reiniciam/rodam em containers (Render, Railway, Heroku), o filesystem pode ser efêmero — recomendamos migrar para Postgres (ex.: `DATABASE_URL`) para persistência.
