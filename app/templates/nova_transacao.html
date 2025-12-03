@@ -3,9 +3,9 @@
 {% block title %}Nova Transação - Gerenciador de Orçamento{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</h2>
+<h2 class="page-heading"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</h2>
 
-<div style="max-width: 600px;">
+<div class="max-width-600">
     <form method="POST" id="form-transacao">
         {{ form.hidden_tag() }}
 
@@ -13,9 +13,9 @@
             <label for="descricao">Descrição *</label>
             {{ form.descricao(class="", id="descricao", placeholder="Ex: Compra no supermercado", autofocus=True) }}
             {% if form.descricao.errors %}
-                <small style="color: #c00;">{{ form.descricao.errors[0] }}</small>
+                <small class="error-small">{{ form.descricao.errors[0] }}</small>
             {% else %}
-                <small style="color: #666;">Descreva brevemente a transação</small>
+                <small class="muted-small">Descreva brevemente a transação</small>
             {% endif %}
         </div>
 
@@ -23,15 +23,15 @@
             <label for="valor">Valor (R$) *</label>
             {{ form.valor(class="", id="valor", placeholder="Ex: 150.50", step="0.01", min="0") }}
             {% if form.valor.errors %}
-                <small style="color: #c00;">{{ form.valor.errors[0] }}</small>
+                <small class="error-small">{{ form.valor.errors[0] }}</small>
             {% else %}
-                <small style="color: #666;">Digite o valor da transação</small>
+                <small class="muted-small">Digite o valor da transação</small>
             {% endif %}
         </div>
 
         <div class="form-group">
             <label for="categoria_id">Categoria *</label>
-            <select id="categoria_id" name="categoria_id" required onchange="atualizarSaldoRestante()">
+            <select id="categoria_id" name="categoria_id" required>
                 <option value="">-- Selecione uma categoria --</option>
                 {% for categoria in categorias %}
                     <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.obter_total_gasto() }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% endif %}> 
@@ -40,14 +40,14 @@
                 {% endfor %}
             </select>
             {% if form.categoria_id.errors %}
-                <small style="color: #c00;">{{ form.categoria_id.errors[0] }}</small>
+                <small class="error-small">{{ form.categoria_id.errors[0] }}</small>
             {% else %}
-                <small style="color: #666;">Selecione a categoria para esta transação</small>
+                <small class="muted-small">Selecione a categoria para esta transação</small>
             {% endif %}
         </div>
 
-        <div id="info-saldo" style="display: none; padding: 15px; background: #f0f0f0; border-radius: 5px; margin-bottom: 15px;">
-            <p style="margin: 0; color: #333;">
+        <div id="info-saldo" class="info-box">
+            <p class="no-margin">
                 <strong>Saldo Restante:</strong> <span id="saldo-restante">R$ 0.00</span>
             </p>
         </div>
@@ -59,28 +59,28 @@
     </form>
 </div>
 
-<div class="card" style="margin-top: 30px;">
+<div class="card card-margin-top">
     <div class="card-header">
         <h3><i class="fa-solid fa-list icon" aria-hidden="true"></i>Categorias Disponíveis</h3>
     </div>
     <div class="card-body">
         {% if categorias %}
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+            <table>
+                <thead>
                     <tr>
-                        <th style="padding: 10px; text-align: left;">Categoria</th>
-                        <th style="padding: 10px; text-align: left;">Limite</th>
-                        <th style="padding: 10px; text-align: left;">Gasto</th>
-                        <th style="padding: 10px; text-align: left;">Saldo</th>
+                        <th>Categoria</th>
+                        <th>Limite</th>
+                        <th>Gasto</th>
+                        <th>Saldo</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for categoria in categorias %}
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px;">{{ categoria.nome }}</td>
-                            <td style="padding: 10px;">R$ {{ "%.2f"|format(categoria.limite) }}</td>
-                            <td style="padding: 10px;">R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
-                            <td style="padding: 10px;">
+                        <tr>
+                            <td>{{ categoria.nome }}</td>
+                            <td>R$ {{ "%.2f"|format(categoria.limite) }}</td>
+                            <td>R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
+                            <td>
                                 {% if categoria.obter_saldo_restante() >= 0 %}
                                     <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
                                 {% else %}
@@ -92,17 +92,17 @@
                 </tbody>
             </table>
         {% else %}
-            <p style="color: #666;">Nenhuma categoria disponível. <a href="{{ url_for('categoria.nova_categoria') }}">Crie uma categoria primeiro</a>.</p>
+            <p class="muted-small">Nenhuma categoria disponível. <a href="{{ url_for('categoria.nova_categoria') }}">Crie uma categoria primeiro</a>.</p>
         {% endif %}
     </div>
 </div>
 
-<div class="card" style="margin-top: 20px;">
+<div class="card card-margin-top-sm">
     <div class="card-header">
         <h3><i class="fa-solid fa-lightbulb icon" aria-hidden="true"></i>Como Funciona a Validação</h3>
     </div>
     <div class="card-body">
-        <ul style="margin-left: 20px; line-height: 1.8;">
+        <ul class="info-list">
             <li>Ao selecionar uma categoria, o saldo restante será exibido</li>
             <li>A transação só será criada se o valor não exceder o saldo restante da categoria</li>
             <li>Se você tentar adicionar uma transação que excede o limite, receberá uma mensagem de erro</li>
@@ -111,23 +111,4 @@
     </div>
 </div>
 
-<script>
-    function atualizarSaldoRestante() {
-        const select = document.getElementById('categoria_id');
-        const infoSaldo = document.getElementById('info-saldo');
-        const saldoRestante = document.getElementById('saldo-restante');
-        
-        if (select.value) {
-            const option = select.options[select.selectedIndex];
-            const limite = parseFloat(option.dataset.limite);
-            const gasto = parseFloat(option.dataset.gasto);
-            const saldo = limite - gasto;
-            
-            saldoRestante.textContent = 'R$ ' + saldo.toFixed(2).replace('.', ',');
-            infoSaldo.style.display = 'block';
-        } else {
-            infoSaldo.style.display = 'none';
-        }
-    }
-</script>
 {% endblock %}

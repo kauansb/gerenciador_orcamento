@@ -3,9 +3,9 @@
 {% block title %}Nova Categoria - Gerenciador de Orçamento{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</h2>
+<h2 class="page-heading"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</h2>
 
-<div style="max-width: 600px;">
+<div class="max-width-600">
     <form method="POST">
         {{ form.hidden_tag() }}
 
@@ -13,9 +13,9 @@
             <label for="nome">Nome da Categoria *</label>
             {{ form.nome(class="", id="nome", placeholder="Ex: Lazer, Moradia, Alimentação", autofocus=True) }}
             {% if form.nome.errors %}
-                <small style="color: #c00;">{{ form.nome.errors[0] }}</small>
+                <small class="error-small">{{ form.nome.errors[0] }}</small>
             {% else %}
-                <small style="color: #666;">Exemplos: Lazer, Moradia, Alimentação, Transporte, Saúde</small>
+                <small class="muted-small">Exemplos: Lazer, Moradia, Alimentação, Transporte, Saúde</small>
             {% endif %}
         </div>
 
@@ -23,9 +23,9 @@
             <label for="limite">Limite Orçamentário (R$) *</label>
             {{ form.limite(class="", id="limite", step="0.01", min="0") }}
             {% if form.limite.errors %}
-                <small style="color: #c00;">{{ form.limite.errors[0] }}</small>
+                <small class="error-small">{{ form.limite.errors[0] }}</small>
             {% else %}
-                <small style="color: #666;">Digite o limite máximo que você deseja gastar nesta categoria</small>
+                <small class="muted-small">Digite o limite máximo que você deseja gastar nesta categoria</small>
             {% endif %}
         </div>
 
@@ -36,12 +36,12 @@
     </form>
 </div>
 
-<div class="card" style="margin-top: 30px;">
+<div class="card card-margin-top">
     <div class="card-header">
         <h3><i class="fa-solid fa-lightbulb icon" aria-hidden="true"></i>Dicas</h3>
     </div>
     <div class="card-body">
-        <ul style="margin-left: 20px; line-height: 1.8;">
+        <ul class="info-list">
             <li>Crie categorias que façam sentido para sua vida (ex: Lazer, Moradia, Alimentação)</li>
             <li>Defina um limite realista para cada categoria baseado em sua renda</li>
             <li>Você pode editar o limite e o nome da categoria a qualquer momento</li>

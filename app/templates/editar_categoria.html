@@ -3,9 +3,9 @@
 {% block title %}Editar Categoria - Gerenciador de Orçamento{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar Categoria</h2>
+<h2 class="page-heading"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar Categoria</h2>
 
-<div style="max-width: 600px;">
+<div class="max-width-600">
     <form method="POST">
         {{ form.hidden_tag() }}
 
@@ -13,19 +13,19 @@
             <label for="nome">Nome da Categoria *</label>
             {{ form.nome(class="", id="nome", value=categoria.nome, autofocus=True) }}
             {% if form.nome.errors %}
-                <small style="color: #c00;">{{ form.nome.errors[0] }}</small>
+                <small class="error-small">{{ form.nome.errors[0] }}</small>
             {% endif %}
         </div>
 
         <div class="form-group">
             <label for="limite">Limite Orçamentário (R$) *</label>
             {{ form.limite(class="", id="limite", value=categoria.limite, step="0.01", min="0") }}
-            <small style="color: #666;">
+            <small class="muted-small">
                 Total gasto: R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}
                 | Saldo: R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}
             </small>
             {% if form.limite.errors %}
-                <small style="color: #c00;">{{ form.limite.errors[0] }}</small>
+                <small class="error-small">{{ form.limite.errors[0] }}</small>
             {% endif %}
         </div>
 
@@ -36,23 +36,23 @@
     </form>
 </div>
 
-<div class="card" style="margin-top: 30px;">
+<div class="card card-margin-top">
     <div class="card-header">
         <h3><i class="fa-solid fa-chart-column icon" aria-hidden="true"></i>Informações da Categoria</h3>
     </div>
     <div class="card-body">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; font-weight: 500;">Limite:</td>
-                <td style="padding: 10px;">R$ {{ "%.2f"|format(categoria.limite) }}</td>
+        <table>
+            <tr>
+                <td class="small-muted label-cell">Limite:</td>
+                <td>R$ {{ "%.2f"|format(categoria.limite) }}</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; font-weight: 500;">Total Gasto:</td>
-                <td style="padding: 10px;">R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
+            <tr>
+                <td class="small-muted label-cell">Total Gasto:</td>
+                <td>R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; font-weight: 500;">Saldo Restante:</td>
-                <td style="padding: 10px;">
+            <tr>
+                <td class="small-muted label-cell">Saldo Restante:</td>
+                <td>
                     {% if categoria.obter_saldo_restante() >= 0 %}
                         <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
                     {% else %}
@@ -60,24 +60,24 @@
                     {% endif %}
                 </td>
             </tr>
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 10px; font-weight: 500;">Percentual Gasto:</td>
-                <td style="padding: 10px;">{{ "%.1f"|format(categoria.obter_percentual_gasto()) }}%</td>
+            <tr>
+                <td class="small-muted label-cell">Percentual Gasto:</td>
+                <td>{{ "%.1f"|format(categoria.obter_percentual_gasto()) }}%</td>
             </tr>
             <tr>
-                <td style="padding: 10px; font-weight: 500;">Transações:</td>
-                <td style="padding: 10px;">{{ categoria.transacoes.count() }}</td>
+                <td class="small-muted label-cell">Transações:</td>
+                <td>{{ categoria.transacoes.count() }}</td>
             </tr>
         </table>
     </div>
 </div>
 
-<div class="card" style="margin-top: 20px;">
+<div class="card card-margin-top-sm">
     <div class="card-header">
         <h3><i class="fa-solid fa-triangle-exclamation icon" aria-hidden="true"></i>Atenção</h3>
     </div>
     <div class="card-body">
-        <ul style="margin-left: 20px; line-height: 1.8;">
+        <ul class="info-list">
             <li>O novo limite não pode ser menor que o total gasto (R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }})</li>
             <li>Ao editar o limite, todas as transações futuras serão validadas contra o novo limite</li>
             <li>As transações existentes não são afetadas pela alteração do limite</li>
