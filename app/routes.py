@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from app.models import db, Categoria, Transacao
+from app.forms import CategoryForm, TransactionForm
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -77,30 +78,11 @@ def nova_categoria():
     """
     CREATE: Formulário para adicionar nova categoria com limite orçamentário.
     """
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        limite = request.form.get('limite', '')
-        
-        # Validações
-        if not nome:
-            flash('Nome da categoria é obrigatório.', 'error')
-            return redirect(url_for('categoria.nova_categoria'))
-        
-        try:
-            limite = float(limite)
-            if limite <= 0:
-                flash('Limite deve ser um valor positivo.', 'error')
-                return redirect(url_for('categoria.nova_categoria'))
-        except ValueError:
-            flash('Limite deve ser um número válido.', 'error')
-            return redirect(url_for('categoria.nova_categoria'))
-        
-        # Verificar se categoria já existe
-        if Categoria.query.filter_by(nome=nome).first():
-            flash(f'Categoria "{nome}" já existe.', 'error')
-            return redirect(url_for('categoria.nova_categoria'))
-        
-        # Criar nova categoria
+    form = CategoryForm()
+    if form.validate_on_submit():
+        nome = form.nome.data.strip()
+        limite = float(form.limite.data)
+
         try:
             categoria = Categoria(nome=nome, limite=limite)
             db.session.add(categoria)
@@ -111,8 +93,8 @@ def nova_categoria():
             db.session.rollback()
             flash(f'Erro ao criar categoria: {str(e)}', 'error')
             return redirect(url_for('categoria.nova_categoria'))
-    
-    return render_template('nova_categoria.html')
+
+    return render_template('nova_categoria.html', form=form)
 
 
 @categoria_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
@@ -122,35 +104,17 @@ def editar_categoria(id):
     """
     categoria = Categoria.query.get_or_404(id)
     
-    if request.method == 'POST':
-        nome = request.form.get('nome', '').strip()
-        limite = request.form.get('limite', '')
-        
-        # Validações
-        if not nome:
-            flash('Nome da categoria é obrigatório.', 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-        
-        try:
-            limite = float(limite)
-            if limite <= 0:
-                flash('Limite deve ser um valor positivo.', 'error')
-                return redirect(url_for('categoria.editar_categoria', id=id))
-        except ValueError:
-            flash('Limite deve ser um número válido.', 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-        
-        # Verificar se novo nome já existe (e não é o mesmo)
-        if nome != categoria.nome and Categoria.query.filter_by(nome=nome).first():
-            flash(f'Categoria "{nome}" já existe.', 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-        
-        # Validar se novo limite não é menor que o gasto
+    form = CategoryForm(original_id=id, obj=categoria)
+    if form.validate_on_submit():
+        nome = form.nome.data.strip()
+        limite = float(form.limite.data)
+
+        # validação de negócio: limite >= gasto atual
         total_gasto = categoria.obter_total_gasto()
         if limite < total_gasto:
             flash(f'Limite não pode ser menor que o total gasto (R$ {total_gasto:.2f}).', 'error')
             return redirect(url_for('categoria.editar_categoria', id=id))
-        
+
         try:
             categoria.nome = nome
             categoria.limite = limite
@@ -162,8 +126,8 @@ def editar_categoria(id):
             db.session.rollback()
             flash(f'Erro ao atualizar categoria: {str(e)}', 'error')
             return redirect(url_for('categoria.editar_categoria', id=id))
-    
-    return render_template('editar_categoria.html', categoria=categoria)
+
+    return render_template('editar_categoria.html', categoria=categoria, form=form)
 
 
 @categoria_bp.route('/deletar/<int:id>', methods=['POST'])
@@ -232,45 +196,25 @@ def nova_transacao():
     - Dropdown é populado dinamicamente com categorias do BD
     """
     categorias = Categoria.query.all()
-    
-    if request.method == 'POST':
-        descricao = request.form.get('descricao', '').strip()
-        valor = request.form.get('valor', '')
-        categoria_id = request.form.get('categoria_id', '')
-        
-        # Validações básicas
-        if not descricao:
-            flash('Descrição é obrigatória.', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-        
-        try:
-            valor = float(valor)
-            if valor <= 0:
-                flash('Valor deve ser positivo.', 'error')
-                return redirect(url_for('transacao.nova_transacao'))
-        except ValueError:
-            flash('Valor deve ser um número válido.', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-        
-        try:
-            categoria_id = int(categoria_id)
-        except ValueError:
-            flash('Categoria inválida.', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-        
-        # Buscar categoria
+    form = TransactionForm()
+    form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
+
+    if form.validate_on_submit():
+        descricao = form.descricao.data.strip()
+        valor = float(form.valor.data)
+        categoria_id = form.categoria_id.data
+
         categoria = Categoria.query.get(categoria_id)
         if not categoria:
             flash('Categoria não encontrada.', 'error')
             return redirect(url_for('transacao.nova_transacao'))
-        
+
         # VALIDAÇÃO CRUCIAL: Verificar se transação excede o limite
         eh_valida, mensagem = categoria.validar_transacao(valor)
         if not eh_valida:
             flash(f'Erro: {mensagem}', 'error')
             return redirect(url_for('transacao.nova_transacao'))
-        
-        # Criar nova transação
+
         try:
             transacao = Transacao(
                 descricao=descricao,
@@ -285,8 +229,8 @@ def nova_transacao():
             db.session.rollback()
             flash(f'Erro ao criar transação: {str(e)}', 'error')
             return redirect(url_for('transacao.nova_transacao'))
-    
-    return render_template('nova_transacao.html', categorias=categorias)
+
+    return render_template('nova_transacao.html', categorias=categorias, form=form)
 
 
 @transacao_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
@@ -297,48 +241,30 @@ def editar_transacao(id):
     """
     transacao = Transacao.query.get_or_404(id)
     categorias = Categoria.query.all()
-    
-    if request.method == 'POST':
-        descricao = request.form.get('descricao', '').strip()
-        valor = request.form.get('valor', '')
-        categoria_id = request.form.get('categoria_id', '')
-        
-        # Validações básicas
-        if not descricao:
-            flash('Descrição é obrigatória.', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
-        
-        try:
-            valor = float(valor)
-            if valor <= 0:
-                flash('Valor deve ser positivo.', 'error')
-                return redirect(url_for('transacao.editar_transacao', id=id))
-        except ValueError:
-            flash('Valor deve ser um número válido.', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
+    form = TransactionForm(obj=transacao)
+    form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
+    if request.method == 'GET':
+        form.categoria_id.data = transacao.categoria_id
 
-        try:
-            categoria_id = int(categoria_id)
-        except ValueError:
-            flash('Categoria inválida.', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
+    if form.validate_on_submit():
+        descricao = form.descricao.data.strip()
+        valor = float(form.valor.data)
+        categoria_id = form.categoria_id.data
 
-        # Buscar nova categoria
-        categoria = Categoria.query.get(categoria_id)
-        if not categoria:
+        categoria_nova = Categoria.query.get(categoria_id)
+        if not categoria_nova:
             flash('Categoria não encontrada.', 'error')
             return redirect(url_for('transacao.editar_transacao', id=id))
 
         # VALIDAÇÃO: Se mudou de categoria ou valor, validar novo limite
-        if transacao.categoria_id != categoria_id or transacao.valor != valor:
-            # Calcular novo valor total da categoria (sem a transação atual)
-            categoria_nova = Categoria.query.get(categoria_id)
-            total_gasto_novo = categoria_nova.obter_total_gasto() - (transacao.valor if transacao.categoria_id == categoria_id else 0)
-            
-            if total_gasto_novo + valor > categoria_nova.limite:
-                saldo_restante = categoria_nova.limite - total_gasto_novo
-                flash(f'Transação de R$ {valor:.2f} excede o saldo restante de R$ {saldo_restante:.2f}', 'error')
-                return redirect(url_for('transacao.editar_transacao', id=id))
+        total_gasto_novo = categoria_nova.obter_total_gasto()
+        if categoria_nova.id == transacao.categoria_id:
+            total_gasto_novo -= transacao.valor
+
+        if total_gasto_novo + valor > categoria_nova.limite:
+            saldo_restante = categoria_nova.limite - total_gasto_novo
+            flash(f'Transação de R$ {valor:.2f} excede o saldo restante de R$ {saldo_restante:.2f}', 'error')
+            return redirect(url_for('transacao.editar_transacao', id=id))
 
         try:
             transacao.descricao = descricao
@@ -352,8 +278,8 @@ def editar_transacao(id):
             db.session.rollback()
             flash(f'Erro ao atualizar transação: {str(e)}', 'error')
             return redirect(url_for('transacao.editar_transacao', id=id))
-    
-    return render_template('editar_transacao.html', transacao=transacao, categorias=categorias)
+
+    return render_template('editar_transacao.html', transacao=transacao, categorias=categorias, form=form)
 
 
 @transacao_bp.route('/deletar/<int:id>', methods=['POST'])

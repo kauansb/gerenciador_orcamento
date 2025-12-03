@@ -7,16 +7,26 @@
 
 <div style="max-width: 600px;">
     <form method="POST">
+        {{ form.hidden_tag() }}
+
         <div class="form-group">
             <label for="nome">Nome da Categoria *</label>
-            <input type="text" id="nome" name="nome" required placeholder="Ex: Lazer, Moradia, Alimentação" autofocus>
-            <small style="color: #666;">Exemplos: Lazer, Moradia, Alimentação, Transporte, Saúde</small>
+            {{ form.nome(class="", id="nome", placeholder="Ex: Lazer, Moradia, Alimentação", autofocus=True) }}
+            {% if form.nome.errors %}
+                <small style="color: #c00;">{{ form.nome.errors[0] }}</small>
+            {% else %}
+                <small style="color: #666;">Exemplos: Lazer, Moradia, Alimentação, Transporte, Saúde</small>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="limite">Limite Orçamentário (R$) *</label>
-            <input type="number" id="limite" name="limite" required placeholder="Ex: 1000.00" step="0.01" min="0">
-            <small style="color: #666;">Digite o limite máximo que você deseja gastar nesta categoria</small>
+            {{ form.limite(class="", id="limite", step="0.01", min="0") }}
+            {% if form.limite.errors %}
+                <small style="color: #c00;">{{ form.limite.errors[0] }}</small>
+            {% else %}
+                <small style="color: #666;">Digite o limite máximo que você deseja gastar nesta categoria</small>
+            {% endif %}
         </div>
 
         <div class="form-actions">

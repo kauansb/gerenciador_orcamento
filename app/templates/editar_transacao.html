@@ -7,14 +7,22 @@
 
 <div style="max-width: 600px;">
     <form method="POST" id="form-transacao">
+        {{ form.hidden_tag() }}
+
         <div class="form-group">
             <label for="descricao">Descrição *</label>
-            <input type="text" id="descricao" name="descricao" required value="{{ transacao.descricao }}" autofocus>
+            {{ form.descricao(class="", id="descricao", value=transacao.descricao, autofocus=True) }}
+            {% if form.descricao.errors %}
+                <small style="color: #c00;">{{ form.descricao.errors[0] }}</small>
+            {% endif %}
         </div>
 
         <div class="form-group">
             <label for="valor">Valor (R$) *</label>
-            <input type="number" id="valor" name="valor" required value="{{ transacao.valor }}" step="0.01" min="0">
+            {{ form.valor(class="", id="valor", value=transacao.valor, step="0.01", min="0") }}
+            {% if form.valor.errors %}
+                <small style="color: #c00;">{{ form.valor.errors[0] }}</small>
+            {% endif %}
         </div>
 
         <div class="form-group">
@@ -22,11 +30,14 @@
             <select id="categoria_id" name="categoria_id" required onchange="atualizarSaldoRestante()">
                 <option value="">-- Selecione uma categoria --</option>
                 {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.obter_total_gasto() }}" {% if categoria.id == transacao.categoria_id %}selected{% endif %}>
+                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.obter_total_gasto() }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% elif not form.categoria_id.data and categoria.id == transacao.categoria_id %}selected{% endif %}>
                         {{ categoria.nome }} (Saldo: R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }})
                     </option>
                 {% endfor %}
             </select>
+            {% if form.categoria_id.errors %}
+                <small style="color: #c00;">{{ form.categoria_id.errors[0] }}</small>
+            {% endif %}
         </div>
 
         <div id="info-saldo" style="display: none; padding: 15px; background: #f0f0f0; border-radius: 5px; margin-bottom: 15px;">
