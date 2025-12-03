@@ -29,6 +29,10 @@ class DevelopmentConfig(Config):
     """Configuração para desenvolvimento"""
     DEBUG = True
     TESTING = False
+    # Durante desenvolvimento, desative o cache de arquivos estáticos
+    # e force recarregamento de templates para facilitar testes
+    SEND_FILE_MAX_AGE_DEFAULT = 0
+    TEMPLATES_AUTO_RELOAD = True
 
 
 class TestingConfig(Config):

@@ -17,7 +17,7 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.environ.get('FLASK_ENV', 'development')
     
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static', static_url_path='/static')
     
     # Carregar configuração
     app.config.from_object(config[config_name])
