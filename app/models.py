@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy import func
+
 
 db = SQLAlchemy()
 
@@ -11,8 +12,8 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False, unique=True)
     limite = db.Column(db.Float, nullable=False)
-    criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    atualizado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    criado_em = db.Column(db.DateTime, nullable=False, default=func.now())
+    atualizado_em = db.Column(db.DateTime, nullable=False, default=func.now(), onupdate=func.now())
     
     transacoes = db.relationship('Transacao', backref='categoria', lazy='dynamic', cascade='all, delete-orphan')
     
@@ -42,8 +43,8 @@ class Transacao(db.Model):
     descricao = db.Column(db.String(255), nullable=False)
     valor = db.Column(db.Float, nullable=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
-    criado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    atualizado_em = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    criado_em = db.Column(db.DateTime, nullable=False, default=func.now())
+    atualizado_em = db.Column(db.DateTime, nullable=False, default=func.now(), onupdate=func.now())
     
     def __repr__(self):
         return f'<Transacao {self.descricao} - R$ {self.valor}>'
