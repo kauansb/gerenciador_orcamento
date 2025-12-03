@@ -1,8 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models import db, Categoria, Transacao
+from app.models import Categoria, Transacao
 from app.forms import CategoryForm, TransactionForm
-from sqlalchemy.exc import IntegrityError
-from datetime import datetime
+from app.services import BusinessRuleError, NotFoundError
+from app.services.categoria_service import create_category, update_category, delete_category
+from app.services.transacao_service import create_transaction, update_transaction, delete_transaction
+
 
 # Criar blueprints
 main_bp = Blueprint('main', __name__)
@@ -82,19 +84,14 @@ def nova_categoria():
     if form.validate_on_submit():
         nome = form.nome.data.strip()
         limite = float(form.limite.data)
-
         try:
-            categoria = Categoria(nome=nome, limite=limite)
-            db.session.add(categoria)
-            db.session.commit()
+            create_category(nome, limite)
             flash(f'Categoria "{nome}" criada com sucesso!', 'success')
             return redirect(url_for('categoria.listar_categorias'))
-        except IntegrityError:
-            db.session.rollback()
-            flash(f'Categoria "{nome}" já existe (conflito de integridade).', 'error')
+        except BusinessRuleError as e:
+            flash(str(e), 'error')
             return redirect(url_for('categoria.nova_categoria'))
         except Exception as e:
-            db.session.rollback()
             flash(f'Erro ao criar categoria: {str(e)}', 'error')
             return redirect(url_for('categoria.nova_categoria'))
 
@@ -112,26 +109,17 @@ def editar_categoria(id):
     if form.validate_on_submit():
         nome = form.nome.data.strip()
         limite = float(form.limite.data)
-
-        # validação de negócio: limite >= gasto atual
-        total_gasto = categoria.obter_total_gasto()
-        if limite < total_gasto:
-            flash(f'Limite não pode ser menor que o total gasto (R$ {total_gasto:.2f}).', 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-
         try:
-            categoria.nome = nome
-            categoria.limite = limite
-            categoria.atualizado_em = datetime.utcnow()
-            db.session.commit()
+            update_category(id, nome, limite)
             flash(f'Categoria "{nome}" atualizada com sucesso!', 'success')
             return redirect(url_for('categoria.listar_categorias'))
-        except IntegrityError:
-            db.session.rollback()
-            flash(f'Categoria "{nome}" já existe (conflito de integridade).', 'error')
+        except BusinessRuleError as e:
+            flash(str(e), 'error')
             return redirect(url_for('categoria.editar_categoria', id=id))
+        except NotFoundError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('categoria.listar_categorias'))
         except Exception as e:
-            db.session.rollback()
             flash(f'Erro ao atualizar categoria: {str(e)}', 'error')
             return redirect(url_for('categoria.editar_categoria', id=id))
 
@@ -149,20 +137,13 @@ def deletar_categoria(id):
     nome = categoria.nome
     
     try:
-        # Verificar se existem transações
-        if categoria.transacoes.count() > 0:
-            # Opção 1: Deletar em cascata (já configurado no model)
-            # Opção 2: Avisar ao usuário
-            transacoes_count = categoria.transacoes.count()
-            flash(f'Aviso: {transacoes_count} transação(ões) será(ão) deletada(s).', 'warning')
-        
-        db.session.delete(categoria)
-        db.session.commit()
+        delete_category(id)
         flash(f'Categoria "{nome}" deletada com sucesso!', 'success')
+    except NotFoundError as e:
+        flash(str(e), 'error')
     except Exception as e:
-        db.session.rollback()
         flash(f'Erro ao deletar categoria: {str(e)}', 'error')
-    
+
     return redirect(url_for('categoria.listar_categorias'))
 
 
@@ -211,34 +192,17 @@ def nova_transacao():
         descricao = form.descricao.data.strip()
         valor = float(form.valor.data)
         categoria_id = form.categoria_id.data
-
-        categoria = Categoria.query.get(categoria_id)
-        if not categoria:
-            flash('Categoria não encontrada.', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-
-        # VALIDAÇÃO CRUCIAL: Verificar se transação excede o limite
-        eh_valida, mensagem = categoria.validar_transacao(valor)
-        if not eh_valida:
-            flash(f'Erro: {mensagem}', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-
         try:
-            transacao = Transacao(
-                descricao=descricao,
-                valor=valor,
-                categoria_id=categoria_id
-            )
-            db.session.add(transacao)
-            db.session.commit()
+            create_transaction(descricao, valor, categoria_id)
             flash(f'Transação "{descricao}" adicionada com sucesso!', 'success')
             return redirect(url_for('transacao.listar_transacoes'))
-        except IntegrityError:
-            db.session.rollback()
-            flash('Erro de integridade ao criar transação.', 'error')
+        except BusinessRuleError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('transacao.nova_transacao'))
+        except NotFoundError as e:
+            flash(str(e), 'error')
             return redirect(url_for('transacao.nova_transacao'))
         except Exception as e:
-            db.session.rollback()
             flash(f'Erro ao criar transação: {str(e)}', 'error')
             return redirect(url_for('transacao.nova_transacao'))
 
@@ -262,36 +226,17 @@ def editar_transacao(id):
         descricao = form.descricao.data.strip()
         valor = float(form.valor.data)
         categoria_id = form.categoria_id.data
-
-        categoria_nova = Categoria.query.get(categoria_id)
-        if not categoria_nova:
-            flash('Categoria não encontrada.', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
-
-        # VALIDAÇÃO: Se mudou de categoria ou valor, validar novo limite
-        total_gasto_novo = categoria_nova.obter_total_gasto()
-        if categoria_nova.id == transacao.categoria_id:
-            total_gasto_novo -= transacao.valor
-
-        if total_gasto_novo + valor > categoria_nova.limite:
-            saldo_restante = categoria_nova.limite - total_gasto_novo
-            flash(f'Transação de R$ {valor:.2f} excede o saldo restante de R$ {saldo_restante:.2f}', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
-
         try:
-            transacao.descricao = descricao
-            transacao.valor = valor
-            transacao.categoria_id = categoria_id
-            transacao.atualizado_em = datetime.utcnow()
-            db.session.commit()
+            update_transaction(id, descricao, valor, categoria_id)
             flash(f'Transação "{descricao}" atualizada com sucesso!', 'success')
             return redirect(url_for('transacao.listar_transacoes'))
-        except IntegrityError:
-            db.session.rollback()
-            flash('Erro de integridade ao atualizar transação.', 'error')
+        except BusinessRuleError as e:
+            flash(str(e), 'error')
             return redirect(url_for('transacao.editar_transacao', id=id))
+        except NotFoundError as e:
+            flash(str(e), 'error')
+            return redirect(url_for('transacao.listar_transacoes'))
         except Exception as e:
-            db.session.rollback()
             flash(f'Erro ao atualizar transação: {str(e)}', 'error')
             return redirect(url_for('transacao.editar_transacao', id=id))
 
@@ -307,11 +252,11 @@ def deletar_transacao(id):
     descricao = transacao.descricao
     
     try:
-        db.session.delete(transacao)
-        db.session.commit()
+        delete_transaction(id)
         flash(f'Transação "{descricao}" deletada com sucesso!', 'success')
+    except NotFoundError as e:
+        flash(str(e), 'error')
     except Exception as e:
-        db.session.rollback()
         flash(f'Erro ao deletar transação: {str(e)}', 'error')
-    
+
     return redirect(url_for('transacao.listar_transacoes'))
