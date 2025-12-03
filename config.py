@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 
 class Config:
     """Configuração base da aplicação Flask"""
@@ -11,18 +10,8 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'instance', 'orcamento.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Configuração da sessão
-    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
-    SESSION_COOKIE_SECURE = False
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    
-    # Chave secreta para sessões
+    # Chave secreta para sessões e CSRF
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    
-    # Configuração de upload
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB máximo
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'app', 'static', 'uploads')
 
 
 class DevelopmentConfig(Config):
