@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.models import db, Categoria, Transacao
 from app.forms import CategoryForm, TransactionForm
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 # Criar blueprints
@@ -88,6 +89,10 @@ def nova_categoria():
             db.session.commit()
             flash(f'Categoria "{nome}" criada com sucesso!', 'success')
             return redirect(url_for('categoria.listar_categorias'))
+        except IntegrityError:
+            db.session.rollback()
+            flash(f'Categoria "{nome}" já existe (conflito de integridade).', 'error')
+            return redirect(url_for('categoria.nova_categoria'))
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao criar categoria: {str(e)}', 'error')
@@ -121,6 +126,10 @@ def editar_categoria(id):
             db.session.commit()
             flash(f'Categoria "{nome}" atualizada com sucesso!', 'success')
             return redirect(url_for('categoria.listar_categorias'))
+        except IntegrityError:
+            db.session.rollback()
+            flash(f'Categoria "{nome}" já existe (conflito de integridade).', 'error')
+            return redirect(url_for('categoria.editar_categoria', id=id))
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao atualizar categoria: {str(e)}', 'error')
@@ -224,6 +233,10 @@ def nova_transacao():
             db.session.commit()
             flash(f'Transação "{descricao}" adicionada com sucesso!', 'success')
             return redirect(url_for('transacao.listar_transacoes'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro de integridade ao criar transação.', 'error')
+            return redirect(url_for('transacao.nova_transacao'))
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao criar transação: {str(e)}', 'error')
@@ -273,6 +286,10 @@ def editar_transacao(id):
             db.session.commit()
             flash(f'Transação "{descricao}" atualizada com sucesso!', 'success')
             return redirect(url_for('transacao.listar_transacoes'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('Erro de integridade ao atualizar transação.', 'error')
+            return redirect(url_for('transacao.editar_transacao', id=id))
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao atualizar transação: {str(e)}', 'error')

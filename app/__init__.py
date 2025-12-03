@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 from config import config
 import os
 
@@ -31,6 +32,10 @@ def create_app(config_name=None):
     # Inicializar banco de dados
     from app.models import db
     db.init_app(app)
+
+    # Inicializar proteção CSRF (Flask-WTF)
+    csrf = CSRFProtect()
+    csrf.init_app(app)
     
     # Registrar blueprints
     from app.routes import main_bp, categoria_bp, transacao_bp
