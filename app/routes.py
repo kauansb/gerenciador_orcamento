@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.models import db, Categoria, Transacao
 from app.forms import CategoryForm, TransactionForm
-from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 # Criar blueprints
