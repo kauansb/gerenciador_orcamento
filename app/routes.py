@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for
 from app.models import Categoria, Transacao
 from app.forms import CategoryForm, TransactionForm
-from app.services import BusinessRuleError, NotFoundError
+from app.decorators import handle_service_errors, flash_success
+from app.helpers import format_categorias, format_transacoes
 from app.services.categoria_service import create_category, update_category, delete_category
 from app.services.transacao_service import create_transaction, update_transaction, delete_transaction
 
@@ -18,28 +19,13 @@ transacao_bp = Blueprint('transacao', __name__, url_prefix='/transacoes')
 
 @main_bp.route('/')
 def index():
-    """
-    Dashboard principal mostrando resumo de todas as categorias.
-    Exibe: limite, gasto, saldo e percentual para cada categoria.
-    """
+    """Dashboard principal mostrando resumo de categorias."""
     categorias = Categoria.query.all()
+    dados_categorias = format_categorias(categorias)
     
-    # Calcular totais gerais
-    total_limite = sum(c.limite for c in categorias)
-    total_gasto = sum(c.obter_total_gasto() for c in categorias)
+    total_limite = sum(c['limite'] for c in dados_categorias)
+    total_gasto = sum(c['gasto'] for c in dados_categorias)
     total_saldo = total_limite - total_gasto
-    
-    dados_categorias = []
-    for categoria in categorias:
-        dados_categorias.append({
-            'id': categoria.id,
-            'nome': categoria.nome,
-            'limite': categoria.limite,
-            'gasto': categoria.obter_total_gasto(),
-            'saldo': categoria.obter_saldo_restante(),
-            'percentual': categoria.obter_percentual_gasto(),
-            'transacoes_count': categoria.transacoes.count()
-        })
     
     return render_template('index.html',
                          categorias=dados_categorias,
@@ -54,96 +40,45 @@ def index():
 
 @categoria_bp.route('/')
 def listar_categorias():
-    """
-    READ: Listar todas as categorias com agregação de transações.
-    Mostra: nome, limite, total gasto, saldo restante e percentual.
-    """
+    """Listar todas as categorias."""
     categorias = Categoria.query.all()
-    
-    dados_categorias = []
-    for categoria in categorias:
-        dados_categorias.append({
-            'id': categoria.id,
-            'nome': categoria.nome,
-            'limite': categoria.limite,
-            'gasto': categoria.obter_total_gasto(),
-            'saldo': categoria.obter_saldo_restante(),
-            'percentual': categoria.obter_percentual_gasto(),
-            'transacoes_count': categoria.transacoes.count()
-        })
-    
-    return render_template('categorias.html', categorias=dados_categorias)
+    return render_template('categorias.html', categorias=format_categorias(categorias))
 
 
 @categoria_bp.route('/nova', methods=['GET', 'POST'])
+@handle_service_errors('categoria.nova_categoria')
 def nova_categoria():
-    """
-    CREATE: Formulário para adicionar nova categoria com limite orçamentário.
-    """
+    """Criar nova categoria."""
     form = CategoryForm()
     if form.validate_on_submit():
-        nome = form.nome.data.strip()
-        limite = float(form.limite.data)
-        try:
-            create_category(nome, limite)
-            flash(f'Categoria "{nome}" criada com sucesso!', 'success')
-            return redirect(url_for('categoria.listar_categorias'))
-        except BusinessRuleError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('categoria.nova_categoria'))
-        except Exception as e:
-            flash(f'Erro ao criar categoria: {str(e)}', 'error')
-            return redirect(url_for('categoria.nova_categoria'))
-
+        create_category(form.nome.data.strip(), float(form.limite.data))
+        flash_success(f'Categoria "{form.nome.data}" criada com sucesso!')
+        return redirect(url_for('categoria.listar_categorias'))
     return render_template('nova_categoria.html', form=form)
 
 
 @categoria_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
+@handle_service_errors('categoria.editar_categoria')
 def editar_categoria(id):
-    """
-    UPDATE: Formulário para modificar nome ou limite de categoria existente.
-    """
+    """Editar categoria existente."""
     categoria = Categoria.query.get_or_404(id)
-    
     form = CategoryForm(original_id=id, obj=categoria)
+    
     if form.validate_on_submit():
-        nome = form.nome.data.strip()
-        limite = float(form.limite.data)
-        try:
-            update_category(id, nome, limite)
-            flash(f'Categoria "{nome}" atualizada com sucesso!', 'success')
-            return redirect(url_for('categoria.listar_categorias'))
-        except BusinessRuleError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-        except NotFoundError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('categoria.listar_categorias'))
-        except Exception as e:
-            flash(f'Erro ao atualizar categoria: {str(e)}', 'error')
-            return redirect(url_for('categoria.editar_categoria', id=id))
-
+        update_category(id, form.nome.data.strip(), float(form.limite.data))
+        flash_success(f'Categoria "{form.nome.data}" atualizada com sucesso!')
+        return redirect(url_for('categoria.listar_categorias'))
+    
     return render_template('editar_categoria.html', categoria=categoria, form=form)
 
 
 @categoria_bp.route('/deletar/<int:id>', methods=['POST'])
+@handle_service_errors('categoria.listar_categorias')
 def deletar_categoria(id):
-    """
-    DELETE: Remover categoria.
-    Inclui validação para garantir que não existem transações relacionadas,
-    ou deleta-as em cascata (configurado no model com cascade='all, delete-orphan').
-    """
+    """Deletar categoria."""
     categoria = Categoria.query.get_or_404(id)
-    nome = categoria.nome
-    
-    try:
-        delete_category(id)
-        flash(f'Categoria "{nome}" deletada com sucesso!', 'success')
-    except NotFoundError as e:
-        flash(str(e), 'error')
-    except Exception as e:
-        flash(f'Erro ao deletar categoria: {str(e)}', 'error')
-
+    delete_category(id)
+    flash_success(f'Categoria "{categoria.nome}" deletada com sucesso!')
     return redirect(url_for('categoria.listar_categorias'))
 
 
@@ -153,110 +88,52 @@ def deletar_categoria(id):
 
 @transacao_bp.route('/')
 def listar_transacoes():
-    """
-    READ: Listar todas as transações com nome da categoria.
-    Usa a relação definida no model para acessar dados da categoria.
-    """
+    """Listar todas as transações."""
     transacoes = Transacao.query.order_by(Transacao.criado_em.desc()).all()
-    
-    dados_transacoes = []
-    for transacao in transacoes:
-        dados_transacoes.append({
-            'id': transacao.id,
-            'descricao': transacao.descricao,
-            'valor': transacao.valor,
-            'categoria_nome': transacao.categoria.nome,
-            'categoria_id': transacao.categoria_id,
-            'criado_em': transacao.criado_em.strftime('%d/%m/%Y %H:%M:%S'),
-            'atualizado_em': transacao.atualizado_em.strftime('%d/%m/%Y %H:%M:%S')
-        })
-    
-    return render_template('transacoes.html', transacoes=dados_transacoes)
+    return render_template('transacoes.html', transacoes=format_transacoes(transacoes))
 
 
 @transacao_bp.route('/nova', methods=['GET', 'POST'])
+@handle_service_errors('transacao.nova_transacao')
 def nova_transacao():
-    """
-    CREATE: Formulário para adicionar nova transação.
-    
-    Lógica de Validação Crucial:
-    - Calcula saldo restante da categoria (limite - soma_das_transacoes_existentes)
-    - Se nova transação exceder o limite, exibe erro e não salva no BD
-    - Dropdown é populado dinamicamente com categorias do BD
-    """
+    """Criar nova transação."""
     categorias = Categoria.query.all()
     form = TransactionForm()
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
 
     if form.validate_on_submit():
-        descricao = form.descricao.data.strip()
-        valor = float(form.valor.data)
-        categoria_id = form.categoria_id.data
-        try:
-            create_transaction(descricao, valor, categoria_id)
-            flash(f'Transação "{descricao}" adicionada com sucesso!', 'success')
-            return redirect(url_for('transacao.listar_transacoes'))
-        except BusinessRuleError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-        except NotFoundError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('transacao.nova_transacao'))
-        except Exception as e:
-            flash(f'Erro ao criar transação: {str(e)}', 'error')
-            return redirect(url_for('transacao.nova_transacao'))
+        create_transaction(form.descricao.data.strip(), float(form.valor.data), form.categoria_id.data)
+        flash_success(f'Transação "{form.descricao.data}" adicionada com sucesso!')
+        return redirect(url_for('transacao.listar_transacoes'))
 
     return render_template('nova_transacao.html', categorias=categorias, form=form)
 
 
 @transacao_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
+@handle_service_errors('transacao.editar_transacao')
 def editar_transacao(id):
-    """
-    UPDATE: Permitir alteração de descrição, valor e categoria.
-    Lógica de validação é aplicada novamente.
-    """
+    """Editar transação existente."""
     transacao = Transacao.query.get_or_404(id)
     categorias = Categoria.query.all()
     form = TransactionForm(obj=transacao)
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
+    
     if request.method == 'GET':
         form.categoria_id.data = transacao.categoria_id
 
     if form.validate_on_submit():
-        descricao = form.descricao.data.strip()
-        valor = float(form.valor.data)
-        categoria_id = form.categoria_id.data
-        try:
-            update_transaction(id, descricao, valor, categoria_id)
-            flash(f'Transação "{descricao}" atualizada com sucesso!', 'success')
-            return redirect(url_for('transacao.listar_transacoes'))
-        except BusinessRuleError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
-        except NotFoundError as e:
-            flash(str(e), 'error')
-            return redirect(url_for('transacao.listar_transacoes'))
-        except Exception as e:
-            flash(f'Erro ao atualizar transação: {str(e)}', 'error')
-            return redirect(url_for('transacao.editar_transacao', id=id))
+        update_transaction(id, form.descricao.data.strip(), float(form.valor.data), form.categoria_id.data)
+        flash_success(f'Transação "{form.descricao.data}" atualizada com sucesso!')
+        return redirect(url_for('transacao.listar_transacoes'))
 
     return render_template('editar_transacao.html', transacao=transacao, categorias=categorias, form=form)
 
 
 @transacao_bp.route('/deletar/<int:id>', methods=['POST'])
+@handle_service_errors('transacao.listar_transacoes')
 def deletar_transacao(id):
-    """
-    DELETE: Remover transação.
-    """
+    """Deletar transação."""
     transacao = Transacao.query.get_or_404(id)
-    descricao = transacao.descricao
-    
-    try:
-        delete_transaction(id)
-        flash(f'Transação "{descricao}" deletada com sucesso!', 'success')
-    except NotFoundError as e:
-        flash(str(e), 'error')
-    except Exception as e:
-        flash(f'Erro ao deletar transação: {str(e)}', 'error')
-
+    delete_transaction(id)
+    flash_success(f'Transação "{transacao.descricao}" deletada com sucesso!')
     return redirect(url_for('transacao.listar_transacoes'))
