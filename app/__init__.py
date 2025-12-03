@@ -1,10 +1,9 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 from config import config
-import os
 
 
-def create_app(config_name=None):
+def create_app(config_name='development'):
     """
     Factory function para criar e configurar a aplicação Flask.
     
@@ -14,19 +13,10 @@ def create_app(config_name=None):
     Returns:
         Flask: Instância da aplicação Flask configurada
     """
-    if config_name is None:
-        config_name = os.environ.get('FLASK_ENV', 'development')
-    
     app = Flask(__name__, static_folder='static', static_url_path='/static')
     
     # Carregar configuração
     app.config.from_object(config[config_name])
-    
-    # Criar diretório de instância se não existir
-    try:
-        os.makedirs(app.instance_path, exist_ok=True)
-    except OSError:
-        pass
     
     # Inicializar banco de dados
     from app.models import db
