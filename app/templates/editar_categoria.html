@@ -3,7 +3,7 @@
 {% block title %}Editar Categoria - Gerenciador de Orçamento{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;">✏️ Editar Categoria</h2>
+<h2 style="color: #667eea; margin-bottom: 20px;"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar Categoria</h2>
 
 <div style="max-width: 600px;">
     <form method="POST">
@@ -22,15 +22,15 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">✅ Salvar Alterações</button>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary">❌ Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Salvar Alterações</button>
+            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
 
 <div class="card" style="margin-top: 30px;">
     <div class="card-header">
-        <h3>📊 Informações da Categoria</h3>
+        <h3><i class="fa-solid fa-chart-column icon" aria-hidden="true"></i>Informações da Categoria</h3>
     </div>
     <div class="card-body">
         <table style="width: 100%; border-collapse: collapse;">
@@ -66,7 +66,7 @@
 
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        <h3>⚠️ Atenção</h3>
+        <h3><i class="fa-solid fa-triangle-exclamation icon" aria-hidden="true"></i>Atenção</h3>
     </div>
     <div class="card-body">
         <ul style="margin-left: 20px; line-height: 1.8;">

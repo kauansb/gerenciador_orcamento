@@ -3,7 +3,7 @@
 {% block title %}Nova Categoria - Gerenciador de Orçamento{% endblock %}
 
 {% block content %}
-<h2 style="color: #667eea; margin-bottom: 20px;">➕ Nova Categoria</h2>
+<h2 style="color: #667eea; margin-bottom: 20px;"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</h2>
 
 <div style="max-width: 600px;">
     <form method="POST">
@@ -20,15 +20,15 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">✅ Criar Categoria</button>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary">❌ Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Criar Categoria</button>
+            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
 
 <div class="card" style="margin-top: 30px;">
     <div class="card-header">
-        <h3>💡 Dicas</h3>
+        <h3><i class="fa-solid fa-lightbulb icon" aria-hidden="true"></i>Dicas</h3>
     </div>
     <div class="card-body">
         <ul style="margin-left: 20px; line-height: 1.8;">

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gerenciador de Orçamento{% endblock %}</title>
+    <!-- Font Awesome icons (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -74,6 +76,12 @@
 
         main {
             padding: 30px 20px;
+        }
+
+        /* Small helper for icon spacing */
+        .icon {
+            margin-right: 8px;
+            vertical-align: middle;
         }
 
         .alerts {
@@ -174,6 +182,32 @@
         .btn-small {
             padding: 8px 12px;
             font-size: 0.9em;
+        }
+
+        /* Ensure anchors and buttons inside actions look identical */
+        .actions .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 14px;
+            margin: 0; /* spacing handled by container */
+            min-width: 110px; /* give a consistent minimum width */
+        }
+
+        .actions form {
+            display: inline-block;
+            margin: 0 0 0 8px;
+        }
+
+        .actions .btn + .btn,
+        .actions .btn + form,
+        .actions form + .btn {
+            margin-left: 8px;
+        }
+
+        .actions button.btn {
+            line-height: 1;
         }
 
         form {
@@ -431,16 +465,16 @@
 <body>
     <div class="container">
         <header>
-            <h1>💰 Gerenciador de Orçamento</h1>
+            <h1><i class="fa-solid fa-coins icon" aria-hidden="true"></i>Gerenciador de Orçamento</h1>
             <p>Controle suas despesas e orçamentos com facilidade</p>
         </header>
 
         <nav>
-            <a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}active{% endif %}">📊 Dashboard</a>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="{% if 'categoria' in request.endpoint %}active{% endif %}">📁 Categorias</a>
-            <a href="{{ url_for('transacao.listar_transacoes') }}" class="{% if 'transacao' in request.endpoint %}active{% endif %}">💳 Transações</a>
-            <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary btn-small">➕ Nova Categoria</a>
-            <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-success btn-small">➕ Nova Transação</a>
+            <a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}active{% endif %}"><i class="fa-solid fa-chart-line icon" aria-hidden="true"></i>Dashboard</a>
+            <a href="{{ url_for('categoria.listar_categorias') }}" class="{% if 'categoria' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-folder icon" aria-hidden="true"></i>Categorias</a>
+            <a href="{{ url_for('transacao.listar_transacoes') }}" class="{% if 'transacao' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-credit-card icon" aria-hidden="true"></i>Transações</a>
+            <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
+            <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-success btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
         </nav>
 
         <main>

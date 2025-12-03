@@ -4,8 +4,8 @@
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2 style="color: #667eea; margin: 0;">📁 Categorias</h2>
-    <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary">➕ Nova Categoria</a>
+    <h2 style="color: #667eea; margin: 0;"><i class="fa-solid fa-folder icon" aria-hidden="true"></i>Categorias</h2>
+    <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
 </div>
 
 {% if categorias %}
@@ -52,9 +52,9 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="{{ url_for('categoria.editar_categoria', id=categoria.id) }}" class="btn btn-warning btn-small">✏️ Editar</a>
+                                <a href="{{ url_for('categoria.editar_categoria', id=categoria.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
                                 <form method="POST" action="{{ url_for('categoria.deletar_categoria', id=categoria.id) }}" style="display: inline; margin: 0;">
-                                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza? As transações desta categoria também serão deletadas.')">🗑️ Deletar</button>
+                                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza? As transações desta categoria também serão deletadas.')"><i class="fa-solid fa-trash icon" aria-hidden="true"></i>Deletar</button>
                                 </form>
                             </div>
                         </td>

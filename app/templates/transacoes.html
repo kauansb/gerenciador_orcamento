@@ -4,8 +4,8 @@
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h2 style="color: #667eea; margin: 0;">💳 Transações</h2>
-    <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary">➕ Nova Transação</a>
+    <h2 style="color: #667eea; margin: 0;"><i class="fa-solid fa-credit-card icon" aria-hidden="true"></i>Transações</h2>
+    <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
 </div>
 
 {% if transacoes %}
@@ -33,9 +33,9 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="{{ url_for('transacao.editar_transacao', id=transacao.id) }}" class="btn btn-warning btn-small">✏️ Editar</a>
+                                <a href="{{ url_for('transacao.editar_transacao', id=transacao.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
                                 <form method="POST" action="{{ url_for('transacao.deletar_transacao', id=transacao.id) }}" style="display: inline; margin: 0;">
-                                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza que deseja deletar esta transação?')">🗑️ Deletar</button>
+                                    <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza que deseja deletar esta transação?')"><i class="fa-solid fa-trash icon" aria-hidden="true"></i>Deletar</button>
                                 </form>
                             </div>
                         </td>
