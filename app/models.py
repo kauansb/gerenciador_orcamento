@@ -21,8 +21,9 @@ class Categoria(db.Model):
         return f'<Categoria {self.nome}>'
     
     def obter_total_gasto(self):
-        """Calcula o total gasto em transações desta categoria"""
-        return sum(t.valor for t in self.transacoes.all()) or 0.0
+        """Calcula o total gasto em transações desta categoria (via SQL)."""
+        total = db.session.query(func.sum(Transacao.valor)).filter_by(categoria_id=self.id).scalar()
+        return float(total) if total else 0.0
     
     def obter_saldo_restante(self):
         """Calcula o saldo restante do orçamento"""
