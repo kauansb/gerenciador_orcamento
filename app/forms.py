@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, NumberRange, ValidationError
-from decimal import Decimal, InvalidOperation
 
 from app.models import Categoria
 
