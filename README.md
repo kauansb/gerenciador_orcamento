@@ -3,10 +3,11 @@
 Aplicação web em Flask para controlar categorias de orçamento e suas transações. Permite configurar limites por categoria, registrar despesas e acompanhar saldos e percentuais em um painel central.
 
 ## Visão Geral
-- Camada de apresentação: templates Jinja2 em `app/templates` (layout base em `base.html`).
-- Validação de formulários: `Flask-WTF` / `WTForms` (forms definidos em `app/forms.py`) com proteção CSRF habilitada.
-- Lógica de negócio: camada de serviços em `app/services/` (ex.: `categoria_service.py`, `transacao_service.py`) — transações DB, validações de domínio e mensagens de erro padronizadas.
-- Persistência: `Flask-SQLAlchemy` com SQLite por padrão (arquivo `instance/orcamento.db`).
+- **Camada de apresentação:** templates Jinja2 em `app/templates` (layout base em `base.html`).
+- **Validação de formulários:** `Flask-WTF` / `WTForms` (forms definidos em `app/forms.py`) com proteção CSRF habilitada.
+- **Lógica de negócio:** camada de serviços em `app/services/` com transações DB, validações de domínio e mensagens de erro padronizadas.
+- **Roteamento simplificado:** decoradores (`app/decorators.py`) para tratamento automático de erros; helpers (`app/helpers.py`) para formatação de dados.
+- **Persistência:** `Flask-SQLAlchemy` com SQLite por padrão (arquivo `instance/orcamento.db`).
 
 ## Funcionalidades
 - CRUD de categorias com limite financeiro e validações de unicidade
@@ -59,22 +60,117 @@ Use `FLASK_ENV=production flask run` em produção e assegure que `SECRET_KEY` e
 ## Estrutura do Projeto
 ```
 app/
-  __init__.py       # Factory do Flask, inicializa DB e CSRF
-  models.py         # Modelos Categoria e Transacao + regras de validação
-  routes.py         # Rotas (apresentação) — usam forms e services
-  forms.py          # WTForms: CategoryForm e TransactionForm
-  services/         # Camada de serviços: lógica de negócio e gerenciamento de transações
-    __init__.py
+  __init__.py           # Factory do Flask, inicializa DB e CSRF
+  models.py             # Modelos Categoria e Transacao com métodos de cálculo
+  routes.py             # Rotas (apresentação) — simplificadas com decoradores
+  forms.py              # WTForms: CategoryForm e TransactionForm com validações
+  decorators.py         # Decoradores para tratamento automático de erros
+  helpers.py            # Funções para formatação de dados para templates
+  services/             # Camada de serviços (lógica de negócio)
+    __init__.py         # Exceções: BusinessRuleError, NotFoundError
     categoria_service.py
     transacao_service.py
-  templates/        # Páginas HTML (Jinja2)
-  static/           # Assets (CSS, JS)
-config.py           # Configurações (dev/test/prod)
-requirements.txt    # Dependências do projeto
-run.py              # Script para subir o servidor Flask
+  templates/            # Páginas HTML (Jinja2)
+  static/               # Assets (CSS, JS)
+config.py               # Configurações (development/testing/production)
+requirements.txt        # Dependências do projeto
+run.py                  # Script para subir o servidor Flask
 ```
 
 ## Fluxo Básico de Uso
 1. Criar uma categoria em `/categorias/nova`, definindo nome e limite.
 2. Cadastrar transações em `/transacoes/nova`, escolhendo a categoria.
 3. Acompanhar o dashboard em `/` para ver limites, gastos e saldos.
+
+## Arquitetura: Camadas e Separação de Responsabilidades
+
+### 1. **Forms** (`app/forms.py`)
+Valida entrada do usuário:
+- Tipo de campo (string, decimal, etc)
+- Presença (obrigatório)
+- Tamanho (max length)
+- Unicidade simples (verifica no BD)
+
+```python
+class CategoryForm(FlaskForm):
+    nome = StringField('Nome', validators=[DataRequired(), Length(max=100)])
+    limite = DecimalField('Limite', places=2, validators=[DataRequired(), NumberRange(min=0.01)])
+```
+
+### 2. **Services** (`app/services/`)
+Encapsula lógica de negócio:
+- Validações de regra de negócio (limite > gasto?)
+- Gerenciamento de transações DB (commit/rollback)
+- Exceções específicas (BusinessRuleError, NotFoundError)
+
+```python
+def create_category(nome: str, limite: float) -> Categoria:
+    if limite <= 0:
+        raise BusinessRuleError('Limite deve ser um valor positivo.')
+    # ... lógica de criação
+```
+
+### 3. **Decoradores** (`app/decorators.py`) — **Novo**
+Simplifica tratamento de erros nas rotas:
+- Captura exceções de serviço automaticamente
+- Exibe mensagens amigáveis ao usuário
+- Redireciona para endpoint correto
+
+```python
+@categoria_bp.route('/nova', methods=['GET', 'POST'])
+@handle_service_errors('categoria.nova_categoria')  # Trata erros automaticamente
+def nova_categoria():
+    # Código limpo, sem try/except
+    pass
+```
+
+### 4. **Helpers** (`app/helpers.py`) — **Novo**
+Formata dados para templates:
+- Reutiliza lógica de transformação
+- Evita duplicação em routes
+- Facilita manutenção
+
+```python
+dados_categorias = format_categorias(categorias)  # Retorna lista pronta
+```
+
+### 5. **Routes** (`app/routes.py`)
+Orquestra requisições HTTP:
+- Recebe e valida formulário
+- Chama service com dados validados
+- Formata resposta (redirect, render template)
+
+```python
+@categoria_bp.route('/nova', methods=['GET', 'POST'])
+@handle_service_errors('categoria.nova_categoria')
+def nova_categoria():
+    form = CategoryForm()
+    if form.validate_on_submit():
+        create_category(form.nome.data.strip(), float(form.limite.data))
+        flash_success('Categoria criada com sucesso!')
+        return redirect(url_for('categoria.listar_categorias'))
+    return render_template('nova_categoria.html', form=form)
+```
+
+## Exemplos de Uso
+
+### Criar Categoria (Simplificado com Decorador)
+```python
+@categoria_bp.route('/nova', methods=['GET', 'POST'])
+@handle_service_errors('categoria.nova_categoria')  # ← Trata erro automaticamente
+def nova_categoria():
+    form = CategoryForm()
+    if form.validate_on_submit():
+        create_category(form.nome.data.strip(), float(form.limite.data))
+        flash_success('Categoria criada!')
+        return redirect(url_for('categoria.listar_categorias'))
+    return render_template('nova_categoria.html', form=form)
+```
+
+### Formatar Dados (Reutilizável com Helpers)
+```python
+@categoria_bp.route('/')
+def listar_categorias():
+    categorias = Categoria.query.all()
+    return render_template('categorias.html', categorias=format_categorias(categorias))
+```
