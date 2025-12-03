@@ -12,7 +12,7 @@ Aplicação web em Flask para controlar categorias de orçamento e suas transaç
 ## Tecnologias
 - Python 3.11+
 - Flask 3 e Blueprint Architecture
-- Flask-SQLAlchemy / SQLAlchemy 2
+- Flask-SQLAlchemy / SQLAlchemy 2 / Flask-WTF
 - HTML + Jinja2 + Bootstrap (templates em `app/templates`)
 
 ## Pré-requisitos
@@ -53,6 +53,7 @@ app/
   __init__.py       # Factory do Flask e registro dos blueprints
   models.py         # Modelos Categoria e Transacao + regras de validação
   routes.py         # Rotas principais, categorias e transações
+  forms.py          # Validações de formulário
   templates/        # Páginas HTML baseadas em Jinja2
 config.py           # Configurações (dev/test/prod)
 requirements.txt    # Dependências do projeto
