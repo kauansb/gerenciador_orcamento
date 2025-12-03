@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError as SAIntegrityError
 from app.models import db, Categoria
 from app.services import BusinessRuleError, NotFoundError
@@ -34,7 +33,6 @@ def update_category(id: int, nome: str, limite: float) -> Categoria:
 
     categoria.nome = nome
     categoria.limite = limite
-    categoria.atualizado_em = datetime.utcnow()
     try:
         db.session.commit()
         return categoria

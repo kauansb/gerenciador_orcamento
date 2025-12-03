@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError as SAIntegrityError
 from app.models import db, Categoria, Transacao
 from app.services import BusinessRuleError, NotFoundError
@@ -13,9 +12,9 @@ def create_transaction(descricao: str, valor: float, categoria_id: int) -> Trans
     if not categoria:
         raise NotFoundError('Categoria não encontrada.')
 
-    eh_valida, mensagem = categoria.validar_transacao(valor)
-    if not eh_valida:
-        raise BusinessRuleError(mensagem)
+    saldo_restante = categoria.obter_saldo_restante()
+    if valor > saldo_restante:
+        raise BusinessRuleError(f'Transação de R$ {valor:.2f} excede o saldo restante de R$ {saldo_restante:.2f}')
 
     transacao = Transacao(descricao=descricao, valor=valor, categoria_id=categoria_id)
     try:
@@ -55,7 +54,6 @@ def update_transaction(id: int, descricao: str, valor: float, categoria_id: int)
     transacao.descricao = descricao
     transacao.valor = valor
     transacao.categoria_id = categoria_id
-    transacao.atualizado_em = datetime.utcnow()
 
     try:
         db.session.commit()
