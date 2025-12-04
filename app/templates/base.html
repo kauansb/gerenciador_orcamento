@@ -19,10 +19,10 @@
 
         <nav>
             <a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}active{% endif %}"><i class="fa-solid fa-chart-line icon" aria-hidden="true"></i>Dashboard</a>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="{% if 'categoria' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-folder icon" aria-hidden="true"></i>Categorias</a>
-            <a href="{{ url_for('transacao.listar_transacoes') }}" class="{% if 'transacao' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-credit-card icon" aria-hidden="true"></i>Transações</a>
-            <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
-            <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-success btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
+            <a href="{{ url_for('categoria.listar') }}" class="{% if 'categoria' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-folder icon" aria-hidden="true"></i>Categorias</a>
+            <a href="{{ url_for('transacao.listar') }}" class="{% if 'transacao' in request.endpoint %}active{% endif %}"><i class="fa-solid fa-credit-card icon" aria-hidden="true"></i>Transações</a>
+            <a href="{{ url_for('categoria.nova') }}" class="btn btn-primary btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
+            <a href="{{ url_for('transacao.nova') }}" class="btn btn-success btn-small"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
         </nav>
 
         <main>

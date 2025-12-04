@@ -21,8 +21,8 @@
             <label for="limite">Limite Orçamentário (R$) *</label>
             {{ form.limite(class="", id="limite", value=categoria.limite, step="0.01", min="0") }}
             <small class="muted-small">
-                Total gasto: R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}
-                | Saldo: R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}
+                Total gasto: R$ {{ "%.2f"|format(gasto) }}
+                | Saldo: R$ {{ "%.2f"|format(saldo) }}
             </small>
             {% if form.limite.errors %}
                 <small class="error-small">{{ form.limite.errors[0] }}</small>
@@ -31,7 +31,7 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Salvar Alterações</button>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
+            <a href="{{ url_for('categoria.listar') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
@@ -48,25 +48,25 @@
             </tr>
             <tr>
                 <td class="small-muted label-cell">Total Gasto:</td>
-                <td>R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
+                <td>R$ {{ "%.2f"|format(gasto) }}</td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Saldo Restante:</td>
                 <td>
-                    {% if categoria.obter_saldo_restante() >= 0 %}
-                        <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
+                    {% if saldo >= 0 %}
+                        <span class="badge badge-success">R$ {{ "%.2f"|format(saldo) }}</span>
                     {% else %}
-                        <span class="badge badge-danger">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
+                        <span class="badge badge-danger">R$ {{ "%.2f"|format(saldo) }}</span>
                     {% endif %}
                 </td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Percentual Gasto:</td>
-                <td>{{ "%.1f"|format(categoria.obter_percentual_gasto()) }}%</td>
+                <td>{{ "%.1f"|format(percentual) }}%</td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Transações:</td>
-                <td>{{ categoria.transacoes.count() }}</td>
+                <td>{{ num_transacoes }}</td>
             </tr>
         </table>
     </div>
@@ -78,9 +78,9 @@
     </div>
     <div class="card-body">
         <ul class="info-list">
-            <li>O novo limite não pode ser menor que o total gasto (R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }})</li>
-            <li>Ao editar o limite, todas as transações futuras serão validadas contra o novo limite</li>
-            <li>As transações existentes não são afetadas pela alteração do limite</li>
+            <li>O limite pode ser alterado a qualquer momento</li>
+            <li>O nome da categoria deve ser único</li>
+            <li>Ao deletar uma categoria, todas as suas transações serão removidas também</li>
         </ul>
     </div>
 </div>

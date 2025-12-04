@@ -31,7 +31,7 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Criar Categoria</button>
-            <a href="{{ url_for('categoria.listar_categorias') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
+            <a href="{{ url_for('categoria.listar') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
@@ -45,7 +45,7 @@
             <li>Crie categorias que façam sentido para sua vida (ex: Lazer, Moradia, Alimentação)</li>
             <li>Defina um limite realista para cada categoria baseado em sua renda</li>
             <li>Você pode editar o limite e o nome da categoria a qualquer momento</li>
-            <li>Quando criar uma transação, ela será validada contra o limite da categoria</li>
+            <li>Cada categoria deve ter um nome único</li>
         </ul>
     </div>
 </div>

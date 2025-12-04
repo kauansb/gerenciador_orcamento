@@ -34,8 +34,8 @@
             <select id="categoria_id" name="categoria_id" required>
                 <option value="">-- Selecione uma categoria --</option>
                 {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.obter_total_gasto() }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% endif %}> 
-                        {{ categoria.nome }} (Saldo: R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }})
+                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.gasto }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% endif %}> 
+                        {{ categoria.nome }} (Saldo: R$ {{ "%.2f"|format(categoria.saldo) }})
                     </option>
                 {% endfor %}
             </select>
@@ -54,7 +54,7 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Adicionar Transação</button>
-            <a href="{{ url_for('transacao.listar_transacoes') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
+            <a href="{{ url_for('transacao.listar') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
@@ -79,12 +79,12 @@
                         <tr>
                             <td>{{ categoria.nome }}</td>
                             <td>R$ {{ "%.2f"|format(categoria.limite) }}</td>
-                            <td>R$ {{ "%.2f"|format(categoria.obter_total_gasto()) }}</td>
+                            <td>R$ {{ "%.2f"|format(categoria.gasto) }}</td>
                             <td>
-                                {% if categoria.obter_saldo_restante() >= 0 %}
-                                    <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
+                                {% if categoria.saldo >= 0 %}
+                                    <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
                                 {% else %}
-                                    <span class="badge badge-danger">R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }}</span>
+                                    <span class="badge badge-danger">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -92,7 +92,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p class="muted-small">Nenhuma categoria disponível. <a href="{{ url_for('categoria.nova_categoria') }}">Crie uma categoria primeiro</a>.</p>
+            <p class="muted-small">Nenhuma categoria disponível. <a href="{{ url_for('categoria.nova') }}">Crie uma categoria primeiro</a>.</p>
         {% endif %}
     </div>
 </div>
@@ -103,10 +103,10 @@
     </div>
     <div class="card-body">
         <ul class="info-list">
-            <li>Ao selecionar uma categoria, o saldo restante será exibido</li>
-            <li>A transação só será criada se o valor não exceder o saldo restante da categoria</li>
-            <li>Se você tentar adicionar uma transação que excede o limite, receberá uma mensagem de erro</li>
-            <li>O saldo restante = Limite da Categoria - Total de Transações Existentes</li>
+            <li>Selecione uma categoria para a sua transação</li>
+            <li>Informe a descrição e o valor da transação</li>
+            <li>O saldo restante de cada categoria é exibido no dropdown</li>
+            <li>Saldo restante = Limite da Categoria - Total de Transações</li>
         </ul>
     </div>
 </div>

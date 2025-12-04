@@ -5,7 +5,7 @@
 {% block content %}
 <div class="header-row">
     <h2 class="page-heading"><i class="fa-solid fa-credit-card icon" aria-hidden="true"></i>Transações</h2>
-    <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
+    <a href="{{ url_for('transacao.nova') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Transação</a>
 </div>
 
 {% if transacoes %}
@@ -16,7 +16,6 @@
                     <th>Descrição</th>
                     <th>Valor</th>
                     <th>Categoria</th>
-                    <th>Data</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -26,15 +25,13 @@
                         <td><strong>{{ transacao.descricao }}</strong></td>
                         <td>R$ {{ "%.2f"|format(transacao.valor) }}</td>
                         <td>
-                            <span class="badge badge-info">{{ transacao.categoria_nome }}</span>
-                        </td>
-                        <td>
-                            <small>{{ transacao.criado_em }}</small>
+                            <span class="badge badge-info">{{ transacao.categoria.nome }}</span>
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="{{ url_for('transacao.editar_transacao', id=transacao.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
-                                <form method="POST" action="{{ url_for('transacao.deletar_transacao', id=transacao.id) }}" class="inline-form">
+                                <a href="{{ url_for('transacao.editar', id=transacao.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
+                                <form method="POST" action="{{ url_for('transacao.deletar', id=transacao.id) }}" class="inline-form">
+                                    {{ delete_form.hidden_tag() }}
                                     <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza que deseja deletar esta transação?')"><i class="fa-solid fa-trash icon" aria-hidden="true"></i>Deletar</button>
                                 </form>
                             </div>
@@ -48,7 +45,7 @@
     <div class="empty-state">
         <h3>Nenhuma transação cadastrada</h3>
         <p>Comece adicionando uma transação para rastrear suas despesas.</p>
-        <a href="{{ url_for('transacao.nova_transacao') }}" class="btn btn-primary">Criar Primeira Transação</a>
+        <a href="{{ url_for('transacao.nova') }}" class="btn btn-primary">Criar Primeira Transação</a>
     </div>
 {% endif %}
 {% endblock %}

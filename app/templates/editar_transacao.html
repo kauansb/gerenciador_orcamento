@@ -30,8 +30,8 @@
             <select id="categoria_id" name="categoria_id" required>
                 <option value="">-- Selecione uma categoria --</option>
                 {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.obter_total_gasto() }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% elif not form.categoria_id.data and categoria.id == transacao.categoria_id %}selected{% endif %}>
-                        {{ categoria.nome }} (Saldo: R$ {{ "%.2f"|format(categoria.obter_saldo_restante()) }})
+                    <option value="{{ categoria.id }}" data-limite="{{ categoria.limite }}" data-gasto="{{ categoria.gasto }}" {% if form.categoria_id.data and form.categoria_id.data == categoria.id %}selected{% elif not form.categoria_id.data and categoria.id == transacao.categoria_id %}selected{% endif %}>
+                        {{ categoria.nome }} (Saldo: R$ {{ "%.2f"|format(categoria.saldo) }})
                     </option>
                 {% endfor %}
             </select>
@@ -48,7 +48,7 @@
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check icon" aria-hidden="true"></i>Salvar Alterações</button>
-            <a href="{{ url_for('transacao.listar_transacoes') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
+            <a href="{{ url_for('transacao.listar') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark icon" aria-hidden="true"></i>Cancelar</a>
         </div>
     </form>
 </div>
@@ -71,14 +71,6 @@
                 <td class="small-muted label-cell">Categoria:</td>
                 <td>{{ transacao.categoria.nome }}</td>
             </tr>
-            <tr>
-                <td class="small-muted label-cell">Criado em:</td>
-                <td>{{ transacao.criado_em.strftime('%d/%m/%Y %H:%M:%S') }}</td>
-            </tr>
-            <tr>
-                <td class="small-muted label-cell">Atualizado em:</td>
-                <td>{{ transacao.atualizado_em.strftime('%d/%m/%Y %H:%M:%S') }}</td>
-            </tr>
         </table>
     </div>
 </div>
@@ -89,9 +81,9 @@
     </div>
     <div class="card-body">
         <ul class="info-list">
-            <li>Se você alterar o valor ou a categoria, a validação de limite será aplicada novamente</li>
-            <li>A transação não será salva se exceder o saldo restante da categoria selecionada</li>
-            <li>O saldo restante = Limite da Categoria - Total de Transações Existentes</li>
+            <li>Você pode editar a descrição, valor e categoria da transação</li>
+            <li>Ao alterar a categoria, a transação será movida para a nova categoria</li>
+            <li>Ao deletar, a transação será removida permanentemente</li>
         </ul>
     </div>
 </div>

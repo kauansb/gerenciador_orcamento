@@ -5,7 +5,7 @@
 {% block content %}
 <div class="header-row">
     <h2 class="page-heading"><i class="fa-solid fa-folder icon" aria-hidden="true"></i>Categorias</h2>
-    <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
+    <a href="{{ url_for('categoria.nova') }}" class="btn btn-primary"><i class="fa-solid fa-plus icon" aria-hidden="true"></i>Nova Categoria</a>
 </div>
 
 {% if categorias %}
@@ -52,8 +52,9 @@
                         </td>
                         <td>
                             <div class="actions">
-                                <a href="{{ url_for('categoria.editar_categoria', id=categoria.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
-                                <form method="POST" action="{{ url_for('categoria.deletar_categoria', id=categoria.id) }}" class="inline-form">
+                                <a href="{{ url_for('categoria.editar', id=categoria.id) }}" class="btn btn-warning btn-small"><i class="fa-solid fa-pen icon" aria-hidden="true"></i>Editar</a>
+                                <form method="POST" action="{{ url_for('categoria.deletar', id=categoria.id) }}" class="inline-form">
+                                    {{ delete_form.hidden_tag() }}
                                     <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza? As transações desta categoria também serão deletadas.')"><i class="fa-solid fa-trash icon" aria-hidden="true"></i>Deletar</button>
                                 </form>
                             </div>
@@ -67,7 +68,7 @@
     <div class="empty-state">
         <h3>Nenhuma categoria cadastrada</h3>
         <p>Comece criando uma nova categoria para gerenciar seu orçamento.</p>
-        <a href="{{ url_for('categoria.nova_categoria') }}" class="btn btn-primary">Criar Primeira Categoria</a>
+        <a href="{{ url_for('categoria.nova') }}" class="btn btn-primary">Criar Primeira Categoria</a>
     </div>
 {% endif %}
 {% endblock %}
