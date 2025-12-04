@@ -10,12 +10,12 @@ Aplicação web em Flask para controlar categorias de orçamento e suas transaç
 - **Persistência:** SQLite por padrão
 
 ## Funcionalidades
-- ✅ CRUD de categorias com limite financeiro
-- ✅ CRUD de transações vinculadas a categorias
-- ✅ Dashboard com visão consolidada (limite, gasto, saldo, percentual)
-- ✅ Feedback via mensagens flash
-- ✅ Validação de formulários no servidor
-- ✅ Atualização de saldo em tempo real (JavaScript)
+- CRUD de categorias com limite financeiro
+- CRUD de transações vinculadas a categorias
+- Dashboard com visão consolidada (limite, gasto, saldo, percentual)
+- Feedback via mensagens flash
+- Validação de formulários no servidor
+- Atualização de saldo em tempo real (JavaScript)
 
 ## Tecnologias
 - Python 3.11+ (recomenda-se 3.11 ou 3.12; ver nota sobre SQLAlchemy/Python 3.13)
