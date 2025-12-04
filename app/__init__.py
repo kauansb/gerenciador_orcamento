@@ -1,38 +1,27 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
-from config import config
+import config
 
 
-def create_app(config_name='development'):
-    """
-    Factory function para criar e configurar a aplicação Flask.
-    
-    Args:
-        config_name (str): Nome da configuração ('development', 'testing', 'production')
-        
-    Returns:
-        Flask: Instância da aplicação Flask configurada
-    """
+def create_app():
+    """Criar e configurar a aplicação Flask."""
     app = Flask(__name__, static_folder='static', static_url_path='/static')
+    app.config.from_object(config)
     
-    # Carregar configuração
-    app.config.from_object(config[config_name])
-    
-    # Inicializar banco de dados
+    # Banco de dados
     from app.models import db
     db.init_app(app)
-
-    # Inicializar proteção CSRF (Flask-WTF)
-    csrf = CSRFProtect()
-    csrf.init_app(app)
     
-    # Registrar blueprints
+    # CSRF Protection
+    CSRFProtect(app)
+    
+    # Blueprints
     from app.routes import main_bp, categoria_bp, transacao_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(categoria_bp)
     app.register_blueprint(transacao_bp)
     
-    # Criar tabelas do banco de dados
+    # Criar tabelas
     with app.app_context():
         db.create_all()
     
