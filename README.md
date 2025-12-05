@@ -70,6 +70,7 @@ app/
     transacao_service.py    # Lógica para Transacao
   templates/            # Páginas HTML (Jinja2)
   static/               # CSS e JavaScript
+instance/               # Banco de dados local (SQLite)
 config.py               # Configurações
 requirements.txt        # Dependências
 run.py                  # Iniciar servidor
