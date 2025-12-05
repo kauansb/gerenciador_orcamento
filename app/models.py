@@ -13,19 +13,27 @@ class Categoria(db.Model):
     
     transacoes = db.relationship('Transacao', backref='categoria', cascade='all, delete-orphan')
     
-    def total_gasto(self):
-        """Calcula o total gasto em transações desta categoria."""
+    @property
+    def gasto(self):
+        """Total gasto em transações desta categoria."""
         return sum(t.valor for t in self.transacoes)
     
-    def saldo_restante(self):
-        """Calcula o saldo restante do orçamento."""
-        return self.limite - self.total_gasto()
+    @property
+    def saldo(self):
+        """Saldo restante do orçamento."""
+        return self.limite - self.gasto
     
-    def percentual_gasto(self):
-        """Calcula o percentual de orçamento gasto."""
+    @property
+    def percentual(self):
+        """Percentual de orçamento gasto."""
         if self.limite == 0:
             return 0
-        return (self.total_gasto() / self.limite) * 100
+        return (self.gasto / self.limite) * 100
+    
+    @property
+    def transacoes_count(self):
+        """Número de transações desta categoria."""
+        return len(self.transacoes)
 
 
 class Transacao(db.Model):

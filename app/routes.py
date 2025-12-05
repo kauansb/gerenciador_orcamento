@@ -9,21 +9,6 @@ categoria_bp = Blueprint('categoria', __name__, url_prefix='/categorias')
 transacao_bp = Blueprint('transacao', __name__, url_prefix='/transacoes')
 
 
-def _preparar_dados_categorias():
-    """Helper para preparar dados de categorias para o template."""
-    categorias = Categoria.query.all()
-    dados_categorias = []
-    for c in categorias:
-        dados_categorias.append({
-            'id': c.id,
-            'nome': c.nome,
-            'limite': c.limite,
-            'gasto': c.total_gasto(),
-            'saldo': c.saldo_restante()
-        })
-    return categorias, dados_categorias
-
-
 # ============================================================================
 # DASHBOARD
 # ============================================================================
@@ -34,23 +19,11 @@ def index():
     categorias = Categoria.query.all()
     
     total_limite = sum(c.limite for c in categorias)
-    total_gasto = sum(c.total_gasto() for c in categorias)
+    total_gasto = sum(c.gasto for c in categorias)
     total_saldo = total_limite - total_gasto
     
-    dados = []
-    for c in categorias:
-        dados.append({
-            'id': c.id,
-            'nome': c.nome,
-            'limite': c.limite,
-            'gasto': c.total_gasto(),
-            'saldo': c.saldo_restante(),
-            'percentual': c.percentual_gasto(),
-            'transacoes_count': len(c.transacoes)
-        })
-    
     return render_template('index.html',
-                         categorias=dados,
+                         categorias=categorias,
                          total_limite=total_limite,
                          total_gasto=total_gasto,
                          total_saldo=total_saldo)
@@ -66,19 +39,7 @@ def listar():
     categorias = Categoria.query.all()
     delete_form = DeleteForm()
     
-    dados = []
-    for c in categorias:
-        dados.append({
-            'id': c.id,
-            'nome': c.nome,
-            'limite': c.limite,
-            'gasto': c.total_gasto(),
-            'saldo': c.saldo_restante(),
-            'percentual': c.percentual_gasto(),
-            'transacoes_count': len(c.transacoes)
-        })
-    
-    return render_template('categorias.html', categorias=dados, delete_form=delete_form)
+    return render_template('categorias.html', categorias=categorias, delete_form=delete_form)
 
 
 @categoria_bp.route('/nova', methods=['GET', 'POST'])
@@ -115,11 +76,7 @@ def editar(id):
         form.nome.data = categoria.nome
         form.limite.data = categoria.limite
     
-    return render_template('editar_categoria.html', categoria=categoria, form=form,
-                         gasto=categoria.total_gasto(), 
-                         saldo=categoria.saldo_restante(), 
-                         percentual=categoria.percentual_gasto(), 
-                         num_transacoes=len(categoria.transacoes))
+    return render_template('editar_categoria.html', categoria=categoria, form=form)
 
 
 @categoria_bp.route('/deletar/<int:id>', methods=['POST'])
@@ -145,22 +102,13 @@ def listar():
     transacoes = Transacao.query.all()
     delete_form = DeleteForm()
     
-    dados = []
-    for t in transacoes:
-        dados.append({
-            'id': t.id,
-            'descricao': t.descricao,
-            'valor': t.valor,
-            'categoria': t.categoria
-        })
-    
-    return render_template('transacoes.html', transacoes=dados, delete_form=delete_form)
+    return render_template('transacoes.html', transacoes=transacoes, delete_form=delete_form)
 
 
 @transacao_bp.route('/nova', methods=['GET', 'POST'])
 def nova():
     """Criar nova transação."""
-    categorias, dados_categorias = _preparar_dados_categorias()
+    categorias = Categoria.query.all()
     form = TransactionForm()
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     
@@ -172,14 +120,14 @@ def nova():
         except Exception as e:
             flash(f'Erro: {str(e)}', 'error')
     
-    return render_template('nova_transacao.html', form=form, categorias=dados_categorias)
+    return render_template('nova_transacao.html', form=form, categorias=categorias)
 
 
 @transacao_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     """Editar transação."""
     transacao = Transacao.query.get_or_404(id)
-    categorias, dados_categorias = _preparar_dados_categorias()
+    categorias = Categoria.query.all()
     form = TransactionForm()
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     
@@ -196,7 +144,7 @@ def editar(id):
         form.valor.data = transacao.valor
         form.categoria_id.data = transacao.categoria_id
     
-    return render_template('editar_transacao.html', transacao=transacao, form=form, categorias=dados_categorias)
+    return render_template('editar_transacao.html', transacao=transacao, form=form, categorias=categorias)
 
 
 @transacao_bp.route('/deletar/<int:id>', methods=['POST'])

@@ -21,8 +21,8 @@
             <label for="limite">Limite Orçamentário (R$) *</label>
             {{ form.limite(class="", id="limite", value=categoria.limite, step="0.01", min="0") }}
             <small class="muted-small">
-                Total gasto: R$ {{ "%.2f"|format(gasto) }}
-                | Saldo: R$ {{ "%.2f"|format(saldo) }}
+                Total gasto: R$ {{ "%.2f"|format(categoria.gasto) }}
+                | Saldo: R$ {{ "%.2f"|format(categoria.saldo) }}
             </small>
             {% if form.limite.errors %}
                 <small class="error-small">{{ form.limite.errors[0] }}</small>
@@ -48,25 +48,25 @@
             </tr>
             <tr>
                 <td class="small-muted label-cell">Total Gasto:</td>
-                <td>R$ {{ "%.2f"|format(gasto) }}</td>
+                <td>R$ {{ "%.2f"|format(categoria.gasto) }}</td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Saldo Restante:</td>
                 <td>
-                    {% if saldo >= 0 %}
-                        <span class="badge badge-success">R$ {{ "%.2f"|format(saldo) }}</span>
+                    {% if categoria.saldo >= 0 %}
+                        <span class="badge badge-success">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
                     {% else %}
-                        <span class="badge badge-danger">R$ {{ "%.2f"|format(saldo) }}</span>
+                        <span class="badge badge-danger">R$ {{ "%.2f"|format(categoria.saldo) }}</span>
                     {% endif %}
                 </td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Percentual Gasto:</td>
-                <td>{{ "%.1f"|format(percentual) }}%</td>
+                <td>{{ "%.1f"|format(categoria.percentual) }}%</td>
             </tr>
             <tr>
                 <td class="small-muted label-cell">Transações:</td>
-                <td>{{ num_transacoes }}</td>
+                <td>{{ categoria.transacoes_count }}</td>
             </tr>
         </table>
     </div>
