@@ -42,6 +42,8 @@ pip install -r requirements.txt
 ```
 
 ## Executando a Aplicação
+
+### Desenvolvimento
 ```powershell
 # Com ambiente ativado
 flask run

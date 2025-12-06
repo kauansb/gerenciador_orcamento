@@ -1,6 +1,14 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 import config
+import os
+
+# Carregar variáveis de ambiente do arquivo .env (se existir)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv não instalado - usar variáveis do sistema
 
 
 def create_app():
