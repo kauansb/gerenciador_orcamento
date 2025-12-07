@@ -16,6 +16,16 @@ def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
     app.config.from_object(config)
     
+    # Log configuração (apenas em desenvolvimento)
+    if app.config.get('DEBUG'):
+        print(f"DEBUG: {app.config['DEBUG']}")
+        db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+        # Não mostrar senha do PostgreSQL
+        if 'postgresql' in db_uri:
+            print("Database: PostgreSQL (produção)")
+        else:
+            print(f"Database: {db_uri}")
+    
     # Banco de dados
     from app.models import db
     db.init_app(app)
@@ -31,6 +41,12 @@ def create_app():
     
     # Criar tabelas
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            if app.config.get('DEBUG'):
+                print("Tabelas criadas/verificadas com sucesso")
+        except Exception as e:
+            print(f"ERRO ao criar tabelas: {e}")
+            raise
     
     return app
