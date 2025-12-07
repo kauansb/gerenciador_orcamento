@@ -2,9 +2,11 @@ services:
   - type: web
     name: gerenciador-orcamento
     runtime: python
-    runtimeVersion: 3.12
-    buildCommand: pip install -r requirements.txt
+    runtimeVersion: 3.12.7
+    buildCommand: bash build.sh
     startCommand: waitress-serve --port=$PORT wsgi:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.12.7
