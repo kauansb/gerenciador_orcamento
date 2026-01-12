@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Setup para Render - Gera SECRET_KEY segura
+Setup para Deploy - Gera SECRET_KEY segura
+Suporta: PostgreSQL (Render), MySQL (Hostinger VPS), SQLite (dev)
 Uso: python setup_deploy.py
 """
 
@@ -24,14 +25,21 @@ def create_env_file():
 
 
 def main():
-    print("\n🚀 Setup para Render - Gerenciador de Orçamento\n")
+    print("\n🚀 Setup para Deploy - Gerenciador de Orçamento\n")
     create_env_file()
     print("\n✓ Setup completo! Próximos passos:\n")
-    print("  1. Testar localmente: gunicorn wsgi:app")
-    print("  2. Fazer commit: git add . && git commit -m 'Deploy ready'")
-    print("  3. Push para GitHub: git push")
-    print("  4. Conectar no Render (render.com)")
-    print("  5. Deploy! 🎉\n")
+    print("  📋 Para MySQL (Hostinger VPS):\n")
+    print("     1. Defina DATABASE_URL no .env ou na VPS:")
+    print("        DATABASE_URL=mysql+pymysql://user:password@host:3306/database_name\n")
+    print("     2. SSH na VPS e instale dependências:")
+    print("        pip install -r requirements.txt\n")
+    print("     3. Inicie o gunicorn:")
+    print("        gunicorn --bind 0.0.0.0:5000 --workers 2 wsgi:app\n")
+    print("  📋 Para PostgreSQL (Render.com):\n")
+    print("     1. A DATABASE_URL é fornecida automaticamente\n")
+    print("     2. Deploy via GitHub: git push\n")
+    print("  📋 Desenvolvimento (SQLite):\n")
+    print("     1. Executar localmente: flask run\n")
 
 
 if __name__ == '__main__':

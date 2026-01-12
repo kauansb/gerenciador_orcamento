@@ -10,10 +10,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 database_url = os.getenv('DATABASE_URL')
 
 if database_url:
-    # Produção: PostgreSQL (Render fornece DATABASE_URL)
-    # Fix para Render: postgres:// -> postgresql://
+    # Produção: PostgreSQL, MySQL ou outro banco via DATABASE_URL
     if database_url.startswith('postgres://'):
         database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    # MySQL da Hostinger: mysql+pymysql://user:password@host:port/database
     SQLALCHEMY_DATABASE_URI = database_url
 else:
     # Desenvolvimento: SQLite
