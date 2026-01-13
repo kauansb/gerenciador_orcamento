@@ -20,6 +20,11 @@ class Categoria(db.Model):
         if self.limite == 0: return 0
         return (self.gasto / self.limite) * 100
 
+    @property
+    def transacoes_count(self):
+        """Número de transações na categoria."""
+        return len(self.transacoes)
+
 class Transacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     descricao = db.Column(db.String(100), nullable=False)
