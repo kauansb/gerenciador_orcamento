@@ -6,12 +6,12 @@ from flask_wtf.csrf import CSRFProtect
 
 load_dotenv()
 
-from config import Config
-
 db = SQLAlchemy()
 csrf = CSRFProtect()
 
 def create_app():
+    from config import Config
+    
     app = Flask(__name__)
     app.config.from_object(Config)
     
@@ -27,7 +27,6 @@ def create_app():
     # Criar tabelas apenas se não existirem
     with app.app_context():
         try:
-            # Apenas criar, não forçar
             db.create_all()
             if app.config.get('DEBUG'):
                 print("✓ Banco de dados inicializado")
