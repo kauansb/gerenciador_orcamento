@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Caminho base do projeto
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Config:
     """Configurações base"""
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
