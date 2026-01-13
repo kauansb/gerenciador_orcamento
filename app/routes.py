@@ -70,7 +70,8 @@ def listar():
 def nova():
     from app.models import Categoria
     form = TransactionForm()
-    form.categoria_id.choices = [(c.id, c.nome) for c in Categoria.query.all()]
+    categorias = Categoria.query.all()
+    form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     if form.validate_on_submit():
         try:
             criar_transacao(form.descricao.data, float(form.valor.data), form.categoria_id.data, form.data.data)
@@ -78,14 +79,15 @@ def nova():
             return redirect(url_for('transacao.listar'))
         except Exception as e:
             flash(f'Erro: {e}', 'error')
-    return render_template('nova_transacao.html', form=form)
+    return render_template('nova_transacao.html', form=form, categorias=categorias)
 
 @transacao_bp.route('/<int:id>/editar', methods=['GET', 'POST'])
 def editar(id):
     from app.models import Transacao, Categoria
     transacao = Transacao.query.get_or_404(id)
     form = TransactionForm(obj=transacao)
-    form.categoria_id.choices = [(c.id, c.nome) for c in Categoria.query.all()]
+    categorias = Categoria.query.all()
+    form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     if form.validate_on_submit():
         try:
             atualizar_transacao(id, form.descricao.data, float(form.valor.data), form.categoria_id.data, form.data.data)
@@ -93,7 +95,7 @@ def editar(id):
             return redirect(url_for('transacao.listar'))
         except Exception as e:
             flash(f'Erro: {e}', 'error')
-    return render_template('editar_transacao.html', form=form, transacao=transacao)
+    return render_template('editar_transacao.html', form=form, transacao=transacao, categorias=categorias)
 
 @transacao_bp.route('/<int:id>/deletar', methods=['POST'])
 def deletar(id):
