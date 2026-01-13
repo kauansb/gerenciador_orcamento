@@ -22,7 +22,8 @@ def index():
 def listar():
     from app.models import Categoria
     categorias = Categoria.query.all()
-    return render_template('categorias.html', categorias=categorias)
+    delete_form = DeleteForm()
+    return render_template('categorias.html', categorias=categorias, delete_form=delete_form)
 
 @categoria_bp.route('/nova', methods=['GET', 'POST'])
 def nova():
@@ -62,7 +63,8 @@ def deletar(id):
 def listar():
     from app.models import Transacao
     transacoes = Transacao.query.order_by(Transacao.data.desc()).all()
-    return render_template('transacoes.html', transacoes=transacoes)
+    delete_form = DeleteForm()
+    return render_template('transacoes.html', transacoes=transacoes, delete_form=delete_form)
 
 @transacao_bp.route('/nova', methods=['GET', 'POST'])
 def nova():
