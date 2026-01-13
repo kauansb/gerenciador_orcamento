@@ -13,20 +13,23 @@ class Config:
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False') == 'True'
     SESSION_COOKIE_HTTPONLY = os.getenv('SESSION_COOKIE_HTTPONLY', 'True') == 'True'
     
-    # Database URL com fallback para SQLite desenvolvimento
+    # Database URL com fallback para SQLite
     database_url = os.getenv('DATABASE_URL')
     if database_url:
         # Produção: MySQL/PostgreSQL
         SQLALCHEMY_DATABASE_URI = database_url
     else:
-        # Desenvolvimento: SQLite
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/orcamento.db'
+        # Fallback: SQLite com caminho ABSOLUTO
+        db_path = os.path.join(basedir, 'instance', 'orcamento.db')
+        SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_path}'
 
 class DevelopmentConfig(Config):
     """Desenvolvimento"""
-    FLASK_DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/orcamento.db'
+    DEBUG = True
+    # Desenvolvimento também usa caminho absoluto
+    db_path = os.path.join(basedir, 'instance', 'orcamento.db')
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{db_path}'
 
 class ProductionConfig(Config):
     """Produção"""
-    FLASK_DEBUG = False
+    DEBUG = False
