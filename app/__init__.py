@@ -22,7 +22,7 @@ def create_app():
     db.init_app(app)
     csrf.init_app(app)
     
-    from app import models
+    from app.models import Categoria, Transacao
     
     # Registrar blueprints APÓS init_app (mas FORA do app_context)
     from app.routes import main_bp, categoria_bp, transacao_bp
@@ -32,10 +32,7 @@ def create_app():
     
     # Criar tabelas DENTRO do contexto
     with app.app_context():
-        try:
-            db.create_all()
-            app.logger.info("✓ Banco de dados inicializado")
-        except Exception as e:
-            app.logger.warning(f"⚠ Aviso ao inicializar banco: {e}")
+        db.create_all()
+        app.logger.info("✓ Banco de dados inicializado")
     
     return app
