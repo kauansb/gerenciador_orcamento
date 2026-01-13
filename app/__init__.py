@@ -4,34 +4,36 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
+# Carregar .env ANTES de tudo
 load_dotenv()
 
+# Instâncias globais
 db = SQLAlchemy()
 csrf = CSRFProtect()
 
 def create_app():
-    from config import Config
-    
     app = Flask(__name__)
+    
+    # Importar config DENTRO da função
+    from config import Config
     app.config.from_object(Config)
     
+    # Inicializar extensões com o app
     db.init_app(app)
     csrf.init_app(app)
     
-    # Blueprints
-    from app.routes import main_bp, categoria_bp, transacao_bp
-    app.register_blueprint(main_bp)
-    app.register_blueprint(categoria_bp)
-    app.register_blueprint(transacao_bp)
-    
-    # Criar tabelas apenas se não existirem
+    # Registrar blueprints DENTRO do contexto do app
     with app.app_context():
+        from app.routes import main_bp, categoria_bp, transacao_bp
+        app.register_blueprint(main_bp)
+        app.register_blueprint(categoria_bp)
+        app.register_blueprint(transacao_bp)
+        
+        # Criar tabelas
         try:
             db.create_all()
-            if app.config.get('DEBUG'):
-                print("✓ Banco de dados inicializado")
+            app.logger.info("✓ Banco de dados inicializado")
         except Exception as e:
-            # Log mas não falha a inicialização
             app.logger.warning(f"⚠ Aviso ao inicializar banco: {e}")
     
     return app
