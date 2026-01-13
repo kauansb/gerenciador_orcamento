@@ -1,37 +1,22 @@
-from flask import Flask
-from flask_wtf import CSRFProtect
-import config
 import os
+from dotenv import load_dotenv
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 
-# Carregar variáveis de ambiente do arquivo .env (se existir)
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass  # python-dotenv não instalado - usar variáveis do sistema
+load_dotenv()
 
+from config import Config
+
+db = SQLAlchemy()
+csrf = CSRFProtect()
 
 def create_app():
-    """Criar e configurar a aplicação Flask."""
-    app = Flask(__name__, static_folder='static', static_url_path='/static')
-    app.config.from_object(config)
+    app = Flask(__name__)
+    app.config.from_object(Config)
     
-    # Log configuração (apenas em desenvolvimento)
-    if app.config.get('DEBUG'):
-        print(f"DEBUG: {app.config['DEBUG']}")
-        db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-        # Não mostrar senha do PostgreSQL
-        if 'postgresql' in db_uri:
-            print("Database: PostgreSQL (produção)")
-        else:
-            print(f"Database: {db_uri}")
-    
-    # Banco de dados
-    from app.models import db
     db.init_app(app)
-    
-    # CSRF Protection
-    CSRFProtect(app)
+    csrf.init_app(app)
     
     # Blueprints
     from app.routes import main_bp, categoria_bp, transacao_bp
@@ -39,14 +24,15 @@ def create_app():
     app.register_blueprint(categoria_bp)
     app.register_blueprint(transacao_bp)
     
-    # Criar tabelas
+    # Criar tabelas apenas se não existirem
     with app.app_context():
         try:
+            # Apenas criar, não forçar
             db.create_all()
             if app.config.get('DEBUG'):
-                print("Tabelas criadas/verificadas com sucesso")
+                print("✓ Banco de dados inicializado")
         except Exception as e:
-            print(f"ERRO ao criar tabelas: {e}")
-            raise
+            # Log mas não falha a inicialização
+            app.logger.warning(f"⚠ Aviso ao inicializar banco: {e}")
     
     return app
