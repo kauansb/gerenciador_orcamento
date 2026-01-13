@@ -74,7 +74,7 @@ def nova():
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     if form.validate_on_submit():
         try:
-            criar_transacao(form.descricao.data, float(form.valor.data), form.categoria_id.data, form.data.data)
+            criar_transacao(form.descricao.data, float(form.valor.data), form.categoria_id.data)
             flash('Transação criada!', 'success')
             return redirect(url_for('transacao.listar'))
         except Exception as e:
@@ -90,7 +90,7 @@ def editar(id):
     form.categoria_id.choices = [(c.id, c.nome) for c in categorias]
     if form.validate_on_submit():
         try:
-            atualizar_transacao(id, form.descricao.data, float(form.valor.data), form.categoria_id.data, form.data.data)
+            atualizar_transacao(id, form.descricao.data, float(form.valor.data), form.categoria_id.data)
             flash('Transação atualizada!', 'success')
             return redirect(url_for('transacao.listar'))
         except Exception as e:
