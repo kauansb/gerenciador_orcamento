@@ -18,18 +18,18 @@ def create_app():
     from config import Config
     app.config.from_object(Config)
     
-    # Inicializar extensões com o app
+    # Inicializar extensões com o app PRIMEIRO
     db.init_app(app)
     csrf.init_app(app)
     
-    # Registrar blueprints DENTRO do contexto do app
+    # Registrar blueprints APÓS init_app (mas FORA do app_context)
+    from app.routes import main_bp, categoria_bp, transacao_bp
+    app.register_blueprint(main_bp)
+    app.register_blueprint(categoria_bp)
+    app.register_blueprint(transacao_bp)
+    
+    # Criar tabelas DENTRO do contexto
     with app.app_context():
-        from app.routes import main_bp, categoria_bp, transacao_bp
-        app.register_blueprint(main_bp)
-        app.register_blueprint(categoria_bp)
-        app.register_blueprint(transacao_bp)
-        
-        # Criar tabelas
         try:
             db.create_all()
             app.logger.info("✓ Banco de dados inicializado")
