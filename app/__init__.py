@@ -22,6 +22,8 @@ def create_app():
     db.init_app(app)
     csrf.init_app(app)
     
+    from app import models
+    
     # Registrar blueprints APÓS init_app (mas FORA do app_context)
     from app.routes import main_bp, categoria_bp, transacao_bp
     app.register_blueprint(main_bp)
